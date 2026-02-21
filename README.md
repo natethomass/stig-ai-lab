@@ -38,7 +38,7 @@ An AI-powered DISA STIG compliance and hardening tool for RHEL 10, built with **
 | AI Framework | CrewAI (multi-agent) |
 | Local LLM | Ollama + LLaMA 3.1 / Mistral |
 | Compliance Scanner | OpenSCAP + SCAP Security Guide |
-| STIG Source | DISA STIG for RHEL 9 (via scap-security-guide) |
+| STIG Source | DISA STIG for RHEL 10 (via scap-security-guide) |
 | Automation | Ansible |
 | Language | Python 3.11+ |
 
