@@ -1,6 +1,6 @@
 # STIG AI Hardening Lab
 
-An AI-powered DISA STIG compliance and hardening tool for RHEL 9, built with **CrewAI** multi-agent architecture and a **local Ollama LLM** — fully offline, no cloud APIs required.
+An AI-powered DISA STIG compliance and hardening tool for RHEL 10, built with **CrewAI** multi-agent architecture and a **local Ollama LLM** — fully offline, no cloud APIs required.
 
 > **Resume Project** — Demonstrates: Linux hardening, DISA STIGs, OpenSCAP, AI agents, Ansible automation, Python
 
@@ -34,7 +34,7 @@ An AI-powered DISA STIG compliance and hardening tool for RHEL 9, built with **C
 
 | Component | Technology |
 |---|---|
-| Target OS | RHEL 9 (free Developer Subscription) |
+| Target OS | RHEL 10 (free Developer Subscription) |
 | AI Framework | CrewAI (multi-agent) |
 | Local LLM | Ollama + LLaMA 3.1 / Mistral |
 | Compliance Scanner | OpenSCAP + SCAP Security Guide |
@@ -77,7 +77,7 @@ Runs `oscap xccdf eval` with the DISA STIG profile, parses the XCCDF results XML
 For each failed control, produces a plain-English explanation: what the control means, why it matters, what an attacker could do if it's left unfixed, and any known side effects of remediation.
 
 ### 🔧 Remediation Agent
-Generates idempotent Ansible tasks using proper modules (`lineinfile`, `sysctl`, `service`, `file`, etc.) targeting RHEL 9. All tasks are written to disk as reviewable playbooks before execution.
+Generates idempotent Ansible tasks using proper modules (`lineinfile`, `sysctl`, `service`, `file`, etc.) targeting RHEL 10. All tasks are written to disk as reviewable playbooks before execution.
 
 ### ✅ Compliance Agent
 Tracks compliance score across scan iterations, identifies regressions, and generates executive-level summary reports. Maintains a history file so you can show score improvement over time.
@@ -86,7 +86,7 @@ Tracks compliance score across scan iterations, identifies regressions, and gene
 
 ## Prerequisites
 
-- RHEL 9 VM (VirtualBox/VMware — minimum 2 vCPUs, 4GB RAM)
+- RHEL 10 VM (VirtualBox/VMware — minimum 2 vCPUs, 4GB RAM)
 - Free [Red Hat Developer Subscription](https://developers.redhat.com/register)
 - Internet access for initial setup (Ollama model download)
 - Python 3.11+
@@ -215,7 +215,7 @@ REQUIRE_APPROVAL=true
 ## Resume Talking Points
 
 - Built a multi-agent AI system using **CrewAI** with specialized agents for scanning, analysis, remediation, and compliance validation
-- Integrated **DISA STIG** compliance scanning via **OpenSCAP** on RHEL 9
+- Integrated **DISA STIG** compliance scanning via **OpenSCAP** on RHEL 10
 - Implemented **human-in-the-loop** approval gates ensuring no changes are applied without explicit user consent
 - Used **local LLMs via Ollama** — fully air-gapped, no data leaves the system (relevant for government/DoD environments)
 - Generated idempotent **Ansible playbooks** for all remediations with full audit trail
