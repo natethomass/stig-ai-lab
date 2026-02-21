@@ -13,7 +13,7 @@ An AI-powered DISA STIG compliance and hardening tool for RHEL 10, built with **
 │                     STIG AI Lab Flow                    │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  1. Scanner Agent  → Runs OpenSCAP STIG scan on RHEL 9  │
+│  1. Scanner Agent  → Runs OpenSCAP STIG scan on RHEL 10 │
 │         ↓                                               │
 │  2. Analyst Agent  → Explains findings in plain English │
 │         ↓                                               │
