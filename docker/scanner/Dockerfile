@@ -7,7 +7,6 @@ RUN dnf install -y \
         python3 \
         python3-pip \
         openscap-scanner \
-        scap-security-guide \
         xmlstarlet \
         curl \
     && dnf clean all \
