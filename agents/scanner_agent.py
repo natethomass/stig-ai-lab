@@ -4,7 +4,6 @@ CrewAI Scanner Agent — responsible for running OpenSCAP scans
 and delivering structured findings to the crew.
 """
 
-from crewai import Agent
 from langchain_community.llms import Ollama
 from tools.scanner import OpenSCAPScanner, STIGFinding
 from rich.console import Console
