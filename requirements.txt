@@ -1,0 +1,11 @@
+crewai==0.28.0
+crewai-tools==0.1.6
+ollama==0.1.7
+langchain==0.1.13
+langchain-community==0.0.29
+rich==13.7.1
+pydantic==2.6.4
+requests==2.31.0
+lxml==5.1.0
+python-dotenv==1.0.1
+ansible-runner==2.3.4
