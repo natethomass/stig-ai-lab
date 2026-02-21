@@ -1,0 +1,327 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: stig-ai-lab
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stig-config
+  namespace: stig-ai-lab
+data:
+  OLLAMA_MODEL:    "llama3.1"
+  STIG_PROFILE:    "stig"
+  MIN_SEVERITY:    "CAT_II"
+  DRY_RUN:         "false"
+  REPORTS_DIR:     "/reports"
+  PLAYBOOKS_DIR:   "/playbooks"
+  OLLAMA_BASE_URL: "http://ollama-service:11434"
+  SCANNER_URL:     "http://scanner-service:8001"
+  ANALYST_URL:     "http://analyst-service:8002"
+  REMEDIATION_URL: "http://remediation-service:8003"
+  COMPLIANCE_URL:  "http://compliance-service:8004"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: reports-pvc
+  namespace: stig-ai-lab
+spec:
+  accessModes: [ReadWriteMany]
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-pvc
+  namespace: stig-ai-lab
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: stig-ai-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest
+          ports:
+            - containerPort: 11434
+          volumeMounts:
+            - name: ollama-storage
+              mountPath: /root/.ollama
+          resources:
+            requests:
+              memory: "8Gi"
+              cpu: "2"
+            limits:
+              memory: "16Gi"
+              cpu: "4"
+          readinessProbe:
+            httpGet:
+              path: /api/tags
+              port: 11434
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: ollama-storage
+          persistentVolumeClaim:
+            claimName: ollama-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-service
+  namespace: stig-ai-lab
+spec:
+  selector:
+    app: ollama
+  ports:
+    - port: 11434
+      targetPort: 11434
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scanner
+  namespace: stig-ai-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scanner
+  template:
+    metadata:
+      labels:
+        app: scanner
+    spec:
+      containers:
+        - name: scanner
+          image: stig-ai-lab/scanner:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8001
+          envFrom:
+            - configMapRef:
+                name: stig-config
+          volumeMounts:
+            - name: reports
+              mountPath: /reports
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 15
+      volumes:
+        - name: reports
+          persistentVolumeClaim:
+            claimName: reports-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scanner-service
+  namespace: stig-ai-lab
+spec:
+  selector:
+    app: scanner
+  ports:
+    - port: 8001
+      targetPort: 8001
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analyst
+  namespace: stig-ai-lab
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: analyst
+  template:
+    metadata:
+      labels:
+        app: analyst
+    spec:
+      containers:
+        - name: analyst
+          image: stig-ai-lab/analyst:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8002
+          envFrom:
+            - configMapRef:
+                name: stig-config
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 30
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analyst-service
+  namespace: stig-ai-lab
+spec:
+  selector:
+    app: analyst
+  ports:
+    - port: 8002
+      targetPort: 8002
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: analyst-hpa
+  namespace: stig-ai-lab
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: analyst
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: remediation
+  namespace: stig-ai-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: remediation
+  template:
+    metadata:
+      labels:
+        app: remediation
+    spec:
+      containers:
+        - name: remediation
+          image: stig-ai-lab/remediation:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8003
+          envFrom:
+            - configMapRef:
+                name: stig-config
+          volumeMounts:
+            - name: playbooks
+              mountPath: /playbooks
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8003
+            initialDelaySeconds: 20
+      volumes:
+        - name: playbooks
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: remediation-service
+  namespace: stig-ai-lab
+spec:
+  selector:
+    app: remediation
+  ports:
+    - port: 8003
+      targetPort: 8003
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compliance
+  namespace: stig-ai-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: compliance
+  template:
+    metadata:
+      labels:
+        app: compliance
+    spec:
+      containers:
+        - name: compliance
+          image: stig-ai-lab/compliance:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8004
+          envFrom:
+            - configMapRef:
+                name: stig-config
+          volumeMounts:
+            - name: reports
+              mountPath: /reports
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8004
+            initialDelaySeconds: 20
+      volumes:
+        - name: reports
+          persistentVolumeClaim:
+            claimName: reports-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compliance-service
+  namespace: stig-ai-lab
+spec:
+  selector:
+    app: compliance
+  ports:
+    - port: 8004
+      targetPort: 8004

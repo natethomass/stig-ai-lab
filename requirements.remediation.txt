@@ -1,0 +1,9 @@
+fastapi==0.110.0
+uvicorn==0.28.0
+pydantic==2.6.4
+ollama==0.1.7
+ansible==9.3.0
+ansible-runner==2.3.4
+pyyaml==6.0.1
+requests==2.31.0
+python-dotenv==1.0.1
