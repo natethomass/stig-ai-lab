@@ -7,8 +7,6 @@ RUN dnf install -y \
         python3 \
         python3-pip \
         openscap-scanner \
-        xmlstarlet \
-        curl \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
@@ -31,6 +29,6 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8001
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s \
-    CMD curl -sf http://localhost:8001/health || exit 1
+    CMD python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" || exit 1
 
 CMD ["python3", "scanner_service.py"]
