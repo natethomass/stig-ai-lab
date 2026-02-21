@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: stig_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  scanner:
+    image: stig-ai-lab/scanner:latest
+    container_name: stig_scanner
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "llama3.1:8b"
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+
+  analyst:
+    image: stig-ai-lab/analyst:latest
+    container_name: stig_analyst
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "llama3.1:8b"
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+
+  remediation:
+    image: stig-ai-lab/remediation:latest
+    container_name: stig_remediation
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "llama3.1:8b"
+    ports:
+      - "8003:8003"
+    restart: unless-stopped
+
+  compliance:
+    image: stig-ai-lab/compliance:latest
+    container_name: stig_compliance
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "llama3.1:8b"
+    ports:
+      - "8004:8004"
+    restart: unless-stopped
+
+  orchestrator:
+    image: stig-ai-lab/orchestrator:latest
+    container_name: stig_orchestrator
+    depends_on:
+      scanner:
+        condition: service_started
+      analyst:
+        condition: service_started
+      remediation:
+        condition: service_started
+      compliance:
+        condition: service_started
+    environment:
+      SCANNER_URL: "http://scanner:8001"
+      ANALYST_URL: "http://analyst:8002"
+      REMEDIATION_URL: "http://remediation:8003"
+      COMPLIANCE_URL: "http://compliance:8004"
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "llama3.1:8b"
+    restart: "no"
+
+volumes:
+  ollama_data:
