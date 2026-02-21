@@ -10,10 +10,11 @@ services:
       - ollama_data:/root/.ollama
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags >/dev/null || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
+  test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+  interval: 30s
+  timeout: 10s
+  retries: 10
+  start_period: 60s
 
   scanner:
     image: stig-ai-lab/scanner:latest
