@@ -4,70 +4,31 @@ CrewAI Scanner Agent — responsible for running OpenSCAP scans
 and delivering structured findings to the crew.
 """
 
-from langchain_community.llms import Ollama
-from tools.scanner import OpenSCAPScanner, STIGFinding
-from rich.console import Console
-from rich.table import Table
-
-console = Console()
+from tools.scanner import STIGFinding
 
 
-def build_scanner_agent(ollama_model: str, ollama_url: str) -> Agent:
-    """Build and return the Scanner Agent."""
+def generate_scan_summary(findings: list, score: dict) -> str:
+    """Generate a plain-text summary of scan results."""
+    cat1 = [f for f in findings if f.severity == "CAT I"]
+    cat2 = [f for f in findings if f.severity == "CAT II"]
+    cat3 = [f for f in findings if f.severity == "CAT III"]
 
-    llm = Ollama(
-        model=ollama_model,
-        base_url=ollama_url,
-        temperature=0.1,    # Low temp — we want consistent, factual output
+    summary = (
+        f"STIG Scan Complete\n"
+        f"Compliance Score: {score.get('score', 0):.1f}%\n"
+        f"Pass: {score.get('pass', 0)} | Fail: {score.get('fail', 0)}\n\n"
+        f"Failures by severity:\n"
+        f"  CAT I  (Critical): {len(cat1)}\n"
+        f"  CAT II (High):     {len(cat2)}\n"
+        f"  CAT III (Medium):  {len(cat3)}\n"
     )
-
-    return Agent(
-        role="STIG Compliance Scanner",
-        goal=(
-            "Run OpenSCAP compliance scans against RHEL systems using DISA STIG profiles. "
-            "Parse the results accurately, categorize findings by severity (CAT I, II, III), "
-            "and produce a clear structured report of all failed controls."
-        ),
-        backstory=(
-            "You are a senior information assurance specialist with deep expertise in "
-            "DISA STIGs, SCAP scanning, and NIST 800-53 controls. You have performed "
-            "hundreds of system assessments and know how to quickly triage findings and "
-            "communicate risk to both technical and non-technical audiences."
-        ),
-        llm=llm,
-        verbose=True,
-        allow_delegation=False,
-    )
+    return summary
 
 
-def print_findings_table(findings: list[STIGFinding], score: dict):
-    """Pretty-print findings to the terminal using rich."""
-
-    # Score summary
-    console.print(f"\n[bold]Compliance Score: [{'green' if score.get('score', 0) >= 70 else 'red'}]{score.get('score', 0)}%[/]")
-    console.print(f"Pass: {score.get('pass', 0)} | Fail: {score.get('fail', 0)} | "
-                  f"Not Checked: {score.get('notchecked', 0)} | N/A: {score.get('notapplicable', 0)}\n")
-
-    # Findings table
-    table = Table(title=f"Failed STIG Controls ({len(findings)} findings)", show_lines=True)
-    table.add_column("#",        style="dim",    width=4)
-    table.add_column("Rule ID",  style="cyan",   width=28)
-    table.add_column("Severity", style="bold",   width=10)
-    table.add_column("Title",                    width=50)
-
-    severity_styles = {"CAT I": "red", "CAT II": "yellow", "CAT III": "blue"}
-
-    for i, f in enumerate(findings, 1):
-        style = severity_styles.get(f.severity, "white")
-        table.add_row(
-            str(i),
-            f.rule_id,
-            f"[{style}]{f.severity}[/{style}]",
-            f.title[:50],
-        )
-
-    console.print(table)
-
+def build_scanner_agent(ollama_model: str = "llama3.1",
+                        ollama_url: str = "http://localhost:11434"):
+    """Placeholder — returns None in microservice mode."""
+    return None
 
 def generate_scan_summary(findings: list[STIGFinding], score: dict) -> str:
     """Generate a text summary suitable for passing to other agents."""
