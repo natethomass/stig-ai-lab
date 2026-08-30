@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STIG AI Lab — OBS Theme Pack</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  /* This page is for YOU, not for OBS. Open it in a browser to preview every
+     overlay and copy the exact URL to paste into an OBS Browser Source. */
+  html, body { overflow: auto; background: #05070a; }
+  .page { max-width: 1320px; margin: 0 auto; padding: 56px 32px 96px; }
+
+  header .kicker { margin-bottom: 16px; }
+  header h1 { font-size: 54px; font-weight: 800; letter-spacing: -0.03em;
+              background: linear-gradient(100deg, #fff 20%, var(--brand) 78%);
+              -webkit-background-clip: text; background-clip: text; color: transparent; }
+  header p { margin-top: 14px; color: var(--dim); font-size: 17px; max-width: 720px; line-height: 1.6; }
+  header .rule { margin: 28px 0 40px; }
+
+  .grid { display: grid; gap: 26px; }
+  .card { border: 1px solid var(--line); border-radius: var(--r-lg);
+          background: var(--panel); overflow: hidden; }
+  .card > header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+                   padding: 20px 24px; border-bottom: 1px solid var(--line); }
+  .card h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .card .size { font-family: var(--mono); font-size: 12px; letter-spacing: .16em;
+                text-transform: uppercase; color: var(--brand); }
+  .card .desc { flex-basis: 100%; color: var(--dim); font-size: 15px; line-height: 1.55; }
+
+  .preview { position: relative; background:
+      repeating-conic-gradient(#151b23 0% 25%, #0e131a 0% 50%) 50% / 26px 26px;
+      overflow: hidden; }
+  .preview iframe { border: 0; position: absolute; top: 0; left: 0;
+                    transform-origin: 0 0; }
+
+  .ctl { display: flex; gap: 10px; padding: 18px 24px; align-items: center; flex-wrap: wrap; }
+  .ctl input {
+    flex: 1; min-width: 260px; padding: 11px 14px;
+    background: #0a0e14; border: 1px solid var(--line); border-radius: var(--r-sm);
+    color: var(--text); font-family: var(--mono); font-size: 13.5px;
+  }
+  .ctl input:focus { outline: none; border-color: var(--brand); }
+  .ctl button, .ctl a.btn {
+    padding: 11px 18px; border-radius: var(--r-sm); cursor: pointer;
+    font-family: var(--mono); font-size: 13px; letter-spacing: .12em;
+    text-transform: uppercase; text-decoration: none;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+  }
+  .ctl button.pri { background: linear-gradient(100deg, var(--brand), var(--brand-2));
+                    color: #04140d; border-color: transparent; font-weight: 700; }
+  .ctl button:hover, .ctl a.btn:hover { border-color: var(--brand); }
+  .params { padding: 0 24px 20px; font-family: var(--mono); font-size: 12.5px;
+            color: var(--mute); line-height: 1.9; }
+  .params b { color: var(--brand-2); font-weight: 500; }
+  .url { padding: 0 24px 22px; font-family: var(--mono); font-size: 12px;
+         color: var(--mute); word-break: break-all; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="kicker">obs theme pack</div>
+    <h1>STIG AI Lab — broadcast kit</h1>
+    <p>Every scene below is a plain HTML file. In OBS add a <b>Browser</b> source, leave
+       “Local file” <em>unchecked</em>, and paste the URL from each card — that is the only way
+       query parameters survive. Canvas: <b>1920 × 1080</b> unless noted.</p>
+    <div class="rule"></div>
+  </header>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const DIR = location.href.replace(/[^/]*$/, '');
+
+const SCENES = [
+  { file: 'starting-soon.html', name: 'Starting Soon', size: '1920 × 1080',
+    desc: 'Opening hold card with a countdown, a live boot log and a severity readout.',
+    qs: 'mins=5&title=Starting%20Soon',
+    params: 'mins · title · sub · kicker · host · cat1 · cat2 · cat3 · done · log (a|b|c) · ticker (a|b|c)' },
+
+  { file: 'scene-card.html', name: 'Scene / Chapter Card', size: '1920 × 1080',
+    desc: 'Full-screen chapter break. bg=clear turns it into a translucent slab you can lay over a screen share.',
+    qs: 'num=03&title=The%20approval%20gate&step=3',
+    params: 'num · title · sub · step (1-6) · phases (a|b|c) · bg (solid|clear) · pipe (on|off) · hold (secs, 0 = stay)' },
+
+  { file: 'topic-bar.html', name: 'Topic Bar', size: '1920 × 1080 (transparent)',
+    desc: 'Persistent top strip: REC dot, elapsed timer, current chapter and the six-phase pipeline.',
+    qs: 'chapter=Ch%2003&topic=Interactive%20remediation&step=3',
+    params: 'chapter · topic · step (1-6) · phases (a|b|c) · rec (on|off) · pipe (on|off)' },
+
+  { file: 'lower-third.html', name: 'Lower Third', size: '1920 × 1080 (transparent)',
+    desc: 'Name / role card that wipes in and hides itself again. dur=0 keeps it up for good.',
+    qs: 'name=Nate%20Thomas&role=STIG%20AI%20Hardening%20Lab&dur=8',
+    params: 'name · role · meta · pos (bl|br|tl|tr) · dur (secs, 0 = stay)' },
+
+  { file: 'camera-frame.html', name: 'Camera Frame', size: 'match your webcam source',
+    desc: 'Corner brackets, scan sweep and a label chip. Size it to your camera and place it on top.',
+    qs: 'label=Live',
+    params: 'label · dot (rec|ok|warn) · tag (on|off) · scan (on|off)' },
+
+  { file: 'brb.html', name: 'Be Right Back', size: '1920 × 1080',
+    desc: 'Break card with its own countdown, framed as a held approval gate.',
+    qs: 'mins=5',
+    params: 'mins · title · sub · step (1-6) · done · ticker (a|b|c)' },
+
+  { file: 'outro.html', name: 'Outro / End Screen', size: '1920 × 1080',
+    desc: 'Closing card with a before → after compliance score and dashed guides where YouTube end-screen elements land.',
+    qs: 'before=43.2%25&after=91.7%25',
+    params: 'title (accepts &lt;br&gt;) · sub · kicker · before · after · link1 · link2 · guides (on|off)' },
+
+  { file: 'thumbnail.html', name: 'Thumbnail Template', size: '1280 × 720',
+    desc: 'Not an overlay — open it at 1280 × 720 and screenshot for a channel-consistent thumbnail.',
+    qs: 'head=I%20let%20an%20AI%7Charden%20RHEL%2010&score=43%25',
+    params: 'head (line1|line2) · kicker · tag · score · scorecap · cat1 · cat2 · cat3' }
+];
+
+const grid = document.getElementById('grid');
+
+SCENES.forEach((s, i) => {
+  const w = s.file === 'thumbnail.html' ? 1280 : 1920;
+  const h = s.file === 'thumbnail.html' ? 720 : 1080;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <header>
+      <h2>${s.name}</h2><span class="size">${s.size}</span>
+      <p class="desc">${s.desc}</p>
+    </header>
+    <div class="preview" id="pv${i}"><iframe id="fr${i}" width="${w}" height="${h}"></iframe></div>
+    <div class="ctl">
+      <input id="in${i}" value="${s.qs}" spellcheck="false" placeholder="query string, e.g. title=Hello&step=2">
+      <button id="ap${i}">Apply</button>
+      <button class="pri" id="cp${i}">Copy OBS URL</button>
+      <a class="btn" id="op${i}" target="_blank" rel="noopener">Open</a>
+    </div>
+    <div class="params"><b>params</b> — ${s.params}</div>
+    <div class="url" id="ur${i}"></div>`;
+  grid.appendChild(card);
+
+  const pv = card.querySelector('#pv' + i);
+  const fr = card.querySelector('#fr' + i);
+  const url = () => DIR + s.file + (card.querySelector('#in' + i).value ? '?' + card.querySelector('#in' + i).value : '');
+
+  function fit() {
+    const scale = pv.clientWidth / w;
+    fr.style.transform = `scale(${scale})`;
+    pv.style.height = (h * scale) + 'px';
+  }
+  function apply() {
+    const u = url();
+    fr.src = u;
+    card.querySelector('#op' + i).href = u;
+    card.querySelector('#ur' + i).textContent = u;
+  }
+  card.querySelector('#ap' + i).onclick = apply;
+  card.querySelector('#in' + i).addEventListener('keydown', e => { if (e.key === 'Enter') apply(); });
+  card.querySelector('#cp' + i).onclick = function () {
+    const u = url(), btn = this;
+    const done = () => { btn.textContent = 'Copied ✓'; setTimeout(() => btn.textContent = 'Copy OBS URL', 1400); };
+    if (navigator.clipboard) navigator.clipboard.writeText(u).then(done).catch(fallback);
+    else fallback();
+    function fallback() {
+      const ta = document.createElement('textarea');
+      ta.value = u; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { prompt('Copy this URL:', u); }
+      ta.remove();
+    }
+  };
+
+  apply(); fit();
+  window.addEventListener('resize', fit);
+});
+</script>
+</body>
+</html>

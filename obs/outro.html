@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Outro — STIG AI Lab</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .wrap { position: absolute; inset: 72px 88px 96px; display: grid;
+          grid-template-columns: 1fr 760px; gap: 64px; align-items: center; }
+
+  .lead .kicker { margin-bottom: 20px; }
+  .lead h1 { font-size: 104px; line-height: 0.96; font-weight: 800; letter-spacing: -0.035em;
+             background: linear-gradient(100deg, #fff 22%, var(--brand) 74%);
+             -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead p { margin-top: 24px; font-size: 25px; line-height: 1.55; color: var(--dim); max-width: 620px; }
+  .lead .rule { margin: 34px 0 30px; width: 420px; }
+
+  .score { display: flex; align-items: flex-end; gap: 28px; }
+  .score .num, .score .was {
+    font-family: var(--mono); font-size: 62px; font-weight: 700; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .score .num { color: var(--brand); text-shadow: 0 0 34px rgba(0, 224, 138, 0.28); }
+  .score .was { color: var(--mute); text-decoration: line-through;
+                text-decoration-color: var(--cat1); text-decoration-thickness: 3px; }
+  .score .arrow { color: var(--mute); font-size: 34px; padding-bottom: 8px; }
+  .score .cap { margin-bottom: 12px; font-family: var(--mono); font-size: 13px;
+                letter-spacing: .22em; text-transform: uppercase; color: var(--mute); }
+
+  .links { display: flex; gap: 14px; margin-top: 40px; flex-wrap: wrap; }
+
+  /* --- YouTube end-screen placement guides --- */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; align-items: start; }
+  .slot {
+    border: 2px dashed rgba(122, 200, 255, 0.32);
+    border-radius: var(--r-md);
+    background: rgba(16, 22, 31, 0.55);
+    display: grid; place-content: center; text-align: center; gap: 8px;
+  }
+  .slot.video { aspect-ratio: 16 / 9; }
+  .slot.sub { aspect-ratio: 1; border-radius: 50%; width: 220px; justify-self: center; }
+  .slot b { font-family: var(--mono); font-size: 15px; letter-spacing: .18em;
+            text-transform: uppercase; color: var(--brand-2); }
+  .slot span { font-family: var(--mono); font-size: 12px; color: var(--mute); }
+  .cards .full { grid-column: 1 / -1; display: grid; place-items: center; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="sweep"></div>
+  <div class="wrap">
+    <section class="lead">
+      <div class="kicker rise" data-p="kicker">end of run</div>
+      <h1 class="rise" style="animation-delay:.06s" data-p="title">Thanks for<br>watching</h1>
+      <p class="rise" style="animation-delay:.12s" data-p="sub">Repo, playbooks and the full scan reports are linked in the description.</p>
+      <div class="rule rise" style="animation-delay:.16s"></div>
+      <div class="score rise" style="animation-delay:.2s">
+        <div>
+          <div class="cap">baseline</div>
+          <div class="was" data-p="before">43.2%</div>
+        </div>
+        <div class="arrow">→</div>
+        <div>
+          <div class="cap">hardened</div>
+          <div class="num" data-p="after">91.7%</div>
+        </div>
+      </div>
+      <div class="links rise" style="animation-delay:.26s">
+        <div class="badge"><span class="dot ok"></span> <b data-p="link1">github.com/natethomass/stig-ai-lab</b></div>
+        <div class="badge" data-p="link2">Subscribe for the next build</div>
+      </div>
+    </section>
+
+    <section class="cards">
+      <div class="slot video"><b>End screen</b><span>video / playlist</span></div>
+      <div class="slot video"><b>End screen</b><span>latest upload</span></div>
+      <div class="full"><div class="slot sub"><b>Subscribe</b><span>channel element</span></div></div>
+    </section>
+  </div>
+</div>
+
+<script src="params.js"></script>
+<script>
+  bindText({
+    kicker: P('kicker', 'end of run'),
+    sub:    P('sub', 'Repo, playbooks and the full scan reports are linked in the description.'),
+    before: P('before', '43.2%'),
+    after:  P('after', '91.7%'),
+    link1:  P('link1', 'github.com/natethomass/stig-ai-lab'),
+    link2:  P('link2', 'Subscribe for the next build')
+  });
+  document.querySelector('[data-p="title"]').innerHTML =
+    P('title', 'Thanks for<br>watching');
+  /* ?guides=off hides the dashed end-screen placement boxes */
+  if (P('guides', 'on') === 'off') document.querySelector('.cards').style.display = 'none';
+</script>
+</body>
+</html>

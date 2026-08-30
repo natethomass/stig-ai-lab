@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Starting Soon — STIG AI Lab</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .wrap { position: absolute; inset: var(--safe); display: grid;
+          grid-template-columns: 1fr 720px; gap: 72px; align-items: center; }
+
+  .lead .kicker { margin-bottom: 22px; }
+  .lead h1 {
+    font-size: 116px; line-height: 0.94; font-weight: 800;
+    letter-spacing: -0.035em;
+    background: linear-gradient(100deg, #fff 18%, var(--brand) 62%, var(--brand-2) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lead p.sub {
+    margin-top: 26px; max-width: 640px;
+    font-size: 26px; line-height: 1.5; color: var(--dim);
+  }
+  .lead .rule { margin: 40px 0 34px; width: 480px; }
+
+  .clock { display: flex; align-items: baseline; gap: 20px; }
+  .clock .t {
+    font-family: var(--mono); font-size: 92px; font-weight: 700;
+    letter-spacing: -0.02em; color: var(--text);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 42px rgba(0, 224, 138, 0.28);
+  }
+  .clock .t.done { color: var(--brand); }
+  .clock .lbl {
+    font-family: var(--mono); font-size: 17px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--mute);
+  }
+
+  .side { display: grid; gap: 22px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .stat {
+    border: 1px solid var(--line); border-radius: var(--r-md);
+    background: var(--panel-2); padding: 16px 18px;
+  }
+  .stat b { display: block; font-family: var(--mono); font-size: 30px; font-weight: 700; }
+  .stat span { font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
+               text-transform: uppercase; color: var(--mute); }
+  .stat.c1 b { color: var(--cat1); }
+  .stat.c2 b { color: var(--cat2); }
+  .stat.c3 b { color: var(--cat3); }
+
+  .term-body { min-height: 330px; }
+  .term-body div { opacity: 0; animation: riseIn .5s ease-out forwards; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="sweep"></div>
+
+  <div class="wrap">
+    <section class="lead">
+      <div class="kicker" data-p="kicker">standing by</div>
+      <h1 data-p="title">Starting Soon</h1>
+      <p class="sub" data-p="sub">Grab a coffee — we're spinning up the RHEL 10 box and the local LLM.</p>
+      <div class="rule"></div>
+      <div class="clock">
+        <div class="t" id="clock">05:00</div>
+        <div class="lbl" id="clabel">until we begin</div>
+      </div>
+    </section>
+
+    <section class="side">
+      <div class="term">
+        <div class="term-bar"><i></i><i></i><i></i><span data-p="host">nate@rhel10 — stig-ai-lab</span></div>
+        <div class="term-body" id="log"></div>
+      </div>
+      <div class="stats">
+        <div class="stat c1"><b data-p="cat1">14</b><span>Cat I</span></div>
+        <div class="stat c2"><b data-p="cat2">122</b><span>Cat II</span></div>
+        <div class="stat c3"><b data-p="cat3">69</b><span>Cat III</span></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="ticker"><div class="ticker-track" id="tick"></div></div>
+</div>
+
+<script src="params.js"></script>
+<script src="ticker.js"></script>
+<script>
+  bindText({
+    kicker: P('kicker', 'standing by'),
+    title:  P('title',  'Starting Soon'),
+    sub:    P('sub',    "Grab a coffee — we're spinning up the RHEL 10 box and the local LLM."),
+    host:   P('host',   'nate@rhel10 — stig-ai-lab'),
+    cat1:   P('cat1', '14'), cat2: P('cat2', '122'), cat3: P('cat3', '69')
+  });
+
+  /* ---- Countdown ---- */
+  var total = Math.max(0, PN('mins', 5) * 60);
+  var end = Date.now() + total * 1000;
+  var elClock = document.getElementById('clock');
+  var elLabel = document.getElementById('clabel');
+  var doneMsg = P('done', 'here we go');
+
+  function tick() {
+    var left = Math.max(0, Math.round((end - Date.now()) / 1000));
+    var m = String(Math.floor(left / 60)).padStart(2, '0');
+    var s = String(left % 60).padStart(2, '0');
+    elClock.textContent = m + ':' + s;
+    if (left === 0) {
+      elClock.classList.add('done');
+      elLabel.textContent = doneMsg;
+    }
+  }
+  tick(); setInterval(tick, 250);
+
+  /* ---- Boot log ---- */
+  var lines = PL('log', [
+    'ok|ollama serve — model llama3.1 loaded',
+    'p|oscap --version  →  OpenSCAP 1.4.0',
+    'ok|scap-security-guide  DISA STIG for RHEL 10',
+    'p|crew: scanner · analyst · remediation · compliance',
+    'warn|approval gate: REQUIRE_APPROVAL=true',
+    'ok|air-gapped — no cloud API calls',
+    '|awaiting operator'
+  ]);
+  var log = document.getElementById('log');
+  lines.forEach(function (raw, i) {
+    var parts = raw.split('|');
+    var cls = parts.length > 1 ? parts[0] : '';
+    var txt = parts.length > 1 ? parts.slice(1).join('|') : raw;
+    var d = document.createElement('div');
+    d.style.animationDelay = (0.35 + i * 0.42) + 's';
+    d.innerHTML = '<span class="p">$</span> <span class="' + cls + '">' + txt + '</span>';
+    log.appendChild(d);
+  });
+  var caret = document.createElement('div');
+  caret.style.animationDelay = (0.35 + lines.length * 0.42) + 's';
+  caret.innerHTML = '<span class="p">$</span> <span class="caret"></span>';
+  log.appendChild(caret);
+
+  /* ---- Ticker ---- */
+  var items = PL('ticker', [
+    'DISA STIG · RHEL 10', 'CrewAI multi-agent', 'Local LLM via Ollama',
+    'OpenSCAP + SSG', 'Human-in-the-loop approval', 'Idempotent Ansible'
+  ]);
+  fillTicker(document.getElementById('tick'), items);
+</script>
+</body>
+</html>

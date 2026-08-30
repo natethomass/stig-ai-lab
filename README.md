@@ -223,6 +223,18 @@ REQUIRE_APPROVAL=true
 
 ---
 
+## Recording / Streaming Theme
+
+An OBS overlay pack themed to this project lives in [`obs/`](obs/) — starting-soon and
+break cards with countdowns, a topic bar that tracks the six agent phases, lower thirds,
+a webcam frame, an outro with a before → after compliance score, and a thumbnail template.
+Plain HTML with no CDNs or web fonts, so it runs on the same air-gapped box as the lab.
+
+Open `obs/index.html` to preview every scene and copy its OBS Browser source URL.
+Setup notes are in [`obs/README.md`](obs/README.md).
+
+---
+
 ## License
 
 MIT — use freely for learning and portfolio purposes.

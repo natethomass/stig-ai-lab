@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Be Right Back — STIG AI Lab</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  .wrap { position: absolute; inset: 0; display: grid; place-content: center;
+          justify-items: center; text-align: center; gap: 30px; padding: 0 var(--safe); }
+  h1 {
+    font-size: 132px; line-height: 0.95; font-weight: 800; letter-spacing: -0.04em;
+    background: linear-gradient(100deg, #fff 20%, var(--cat2) 78%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  p.sub { font-size: 27px; color: var(--dim); max-width: 900px; }
+  .rule { width: 420px; }
+  .clock {
+    font-family: var(--mono); font-size: 76px; font-weight: 700;
+    font-variant-numeric: tabular-nums; color: var(--cat2);
+    text-shadow: 0 0 40px rgba(255, 176, 32, 0.25);
+  }
+  .clock.done { color: var(--brand); text-shadow: 0 0 40px rgba(0, 224, 138, 0.3); }
+  .pipe { margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="sweep"></div>
+  <div class="wrap">
+    <div class="badge rise"><span class="dot warn"></span> <b>Session paused</b> · approval gate held</div>
+    <h1 class="rise" style="animation-delay:.08s" data-p="title">Be Right Back</h1>
+    <div class="rule rise" style="animation-delay:.14s"></div>
+    <p class="sub rise" style="animation-delay:.2s" data-p="sub">Scan state is preserved — nothing is applied while I'm away.</p>
+    <div class="clock rise" id="clock" style="animation-delay:.26s">05:00</div>
+    <div class="pipe rise" id="pipe" style="animation-delay:.32s"></div>
+  </div>
+  <div class="ticker"><div class="ticker-track" id="tick"></div></div>
+</div>
+
+<script src="params.js"></script>
+<script src="ticker.js"></script>
+<script src="pipeline.js"></script>
+<script>
+  bindText({
+    title: P('title', 'Be Right Back'),
+    sub:   P('sub', "Scan state is preserved — nothing is applied while I'm away.")
+  });
+
+  renderPipe(document.getElementById('pipe'), PN('step', 3));
+
+  var end = Date.now() + Math.max(0, PN('mins', 5)) * 60000;
+  var el = document.getElementById('clock');
+  (function tick() {
+    var left = Math.max(0, Math.round((end - Date.now()) / 1000));
+    el.textContent = String(Math.floor(left / 60)).padStart(2, '0') + ':' + String(left % 60).padStart(2, '0');
+    if (left === 0) { el.classList.add('done'); el.textContent = P('done', 'BACK NOW'); }
+    setTimeout(tick, 250);
+  })();
+
+  var items = PL('ticker', ['Be right back', 'Nothing is being applied', 'Scan results cached in reports/']);
+  fillTicker(document.getElementById('tick'), items);
+</script>
+</body>
+</html>

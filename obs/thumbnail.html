@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Thumbnail Template — STIG AI Lab</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  /* 1280x720 — open in a browser at that size and screenshot, or point an OBS
+     browser source at it and use Screenshot (Source) from the right-click menu. */
+  .tn { position: absolute; inset: 0; display: grid;
+        grid-template-columns: 1fr 400px; gap: 36px; align-items: center;
+        padding: 56px 60px; }
+
+  .left .kicker { font-size: 22px; letter-spacing: .34em; margin-bottom: 18px; }
+  .left h1 {
+    font-size: 96px; line-height: 0.92; font-weight: 800; letter-spacing: -0.045em;
+    text-transform: uppercase; color: #fff;
+    text-shadow: 0 6px 40px rgba(0, 0, 0, 0.6);
+  }
+  .left h1 em { font-style: normal;
+    background: linear-gradient(100deg, var(--brand), var(--brand-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .left .tag {
+    display: inline-block; margin-top: 26px; padding: 10px 20px;
+    background: var(--cat1); color: #fff; border-radius: var(--r-sm);
+    font-family: var(--mono); font-size: 22px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    transform: rotate(-1.5deg);
+  }
+
+  .right { display: grid; gap: 18px; justify-items: stretch; }
+  .gauge {
+    border: 2px solid rgba(0, 224, 138, .4); border-radius: var(--r-lg);
+    background: rgba(0, 224, 138, .07);
+    padding: 26px 28px; text-align: center;
+  }
+  .gauge .n { font-family: var(--mono); font-size: 92px; font-weight: 800; color: var(--brand);
+              line-height: 1; font-variant-numeric: tabular-nums; }
+  .gauge .c { margin-top: 8px; font-family: var(--mono); font-size: 15px;
+              letter-spacing: .24em; text-transform: uppercase; color: var(--dim); }
+  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .cats div { border-radius: var(--r-sm); padding: 14px 0; text-align: center;
+              font-family: var(--mono); font-weight: 700; font-size: 30px; color: #0a0e14; }
+  .cats .a { background: var(--cat1); }
+  .cats .b { background: var(--cat2); }
+  .cats .c { background: var(--cat3); }
+  .cats small { display: block; font-size: 11px; letter-spacing: .2em; opacity: .75; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="tn">
+    <div class="left">
+      <div class="kicker" data-p="kicker">stig ai lab</div>
+      <h1 id="head">I let an AI<br><em>harden RHEL 10</em></h1>
+      <div class="tag" data-p="tag">205 findings</div>
+    </div>
+    <div class="right">
+      <div class="gauge">
+        <div class="n" data-p="score">43%</div>
+        <div class="c" data-p="scorecap">compliance</div>
+      </div>
+      <div class="cats">
+        <div class="a"><span data-p="cat1">14</span><small>Cat I</small></div>
+        <div class="b"><span data-p="cat2">122</span><small>Cat II</small></div>
+        <div class="c"><span data-p="cat3">69</span><small>Cat III</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="params.js"></script>
+<script>
+  bindText({
+    kicker: P('kicker', 'stig ai lab'),
+    tag: P('tag', '205 findings'),
+    score: P('score', '43%'), scorecap: P('scorecap', 'compliance'),
+    cat1: P('cat1', '14'), cat2: P('cat2', '122'), cat3: P('cat3', '69')
+  });
+  /* ?head=I let an AI|harden RHEL 10  — second line gets the gradient */
+  var h = PL('head', null);
+  if (h) document.getElementById('head').innerHTML =
+    h.map(function (l, i) { return i ? '<em>' + l + '</em>' : l; }).join('<br>');
+</script>
+</body>
+</html>
