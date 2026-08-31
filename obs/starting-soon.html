@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <title>Starting Soon — STIG AI Lab</title>
 <link rel="stylesheet" href="theme.css">
+<script src="brand.js"></script>
 <style>
+  .brandbar { position: absolute; top: 46px; left: var(--safe); }
+
   .wrap { position: absolute; inset: var(--safe); display: grid;
           grid-template-columns: 1fr 720px; gap: 72px; align-items: center; }
 
@@ -26,7 +29,7 @@
     font-family: var(--mono); font-size: 92px; font-weight: 700;
     letter-spacing: -0.02em; color: var(--text);
     font-variant-numeric: tabular-nums;
-    text-shadow: 0 0 42px rgba(0, 224, 138, 0.28);
+    text-shadow: 0 0 42px var(--brand-soft);
   }
   .clock .t.done { color: var(--brand); }
   .clock .lbl {
@@ -43,6 +46,7 @@
   .stat b { display: block; font-family: var(--mono); font-size: 30px; font-weight: 700; }
   .stat span { font-family: var(--mono); font-size: 12px; letter-spacing: 0.18em;
                text-transform: uppercase; color: var(--mute); }
+  .stat.brand b { color: var(--brand); }
   .stat.c1 b { color: var(--cat1); }
   .stat.c2 b { color: var(--cat2); }
   .stat.c3 b { color: var(--cat3); }
@@ -54,6 +58,7 @@
 <body>
 <div class="stage">
   <div class="sweep"></div>
+  <div class="brandbar"><div id="wm"></div></div>
 
   <div class="wrap">
     <section class="lead">
@@ -72,11 +77,7 @@
         <div class="term-bar"><i></i><i></i><i></i><span data-p="host">nate@rhel10 — stig-ai-lab</span></div>
         <div class="term-body" id="log"></div>
       </div>
-      <div class="stats">
-        <div class="stat c1"><b data-p="cat1">14</b><span>Cat I</span></div>
-        <div class="stat c2"><b data-p="cat2">122</b><span>Cat II</span></div>
-        <div class="stat c3"><b data-p="cat3">69</b><span>Cat III</span></div>
-      </div>
+      <div class="stats" id="stats"></div>
     </section>
   </div>
 
@@ -84,14 +85,33 @@
 </div>
 
 <script src="params.js"></script>
+<script src="wordmark.js"></script>
 <script src="ticker.js"></script>
 <script>
+  renderWordmark(document.getElementById('wm'));
+
   bindText({
     kicker: P('kicker', 'standing by'),
     title:  P('title',  'Starting Soon'),
-    sub:    P('sub',    "Grab a coffee — we're spinning up the RHEL 10 box and the local LLM."),
-    host:   P('host',   'nate@rhel10 — stig-ai-lab'),
-    cat1:   P('cat1', '14'), cat2: P('cat2', '122'), cat3: P('cat3', '69')
+    sub:    P('sub',    'Grab a coffee — the lab is booting and the mic is warming up.'),
+    host:   P('host',   'nate@techfitdad — ~/lab')
+  });
+
+  /* Agenda tiles: value:label[:tone] — tone is brand | c1 | c2 | c3.
+     Doubles as a severity readout, e.g. agenda=14:Cat I:c1|122:Cat II:c2 */
+  var agenda = PL('agenda', [
+    '01:Today\u2019s build:brand', '02:The walkthrough:c2', '03:Q &amp; A:c3'
+  ]);
+  var tones = ['brand', 'c2', 'c3'];
+  var stats = document.getElementById('stats');
+  stats.style.gridTemplateColumns = 'repeat(' + agenda.length + ', 1fr)';
+  agenda.forEach(function (raw, i) {
+    var bits = raw.split(':');
+    var tone = bits[2] || tones[i % tones.length];
+    var d = document.createElement('div');
+    d.className = 'stat ' + tone;
+    d.innerHTML = '<b>' + (bits[0] || '') + '</b><span>' + (bits[1] || '') + '</span>';
+    stats.appendChild(d);
   });
 
   /* ---- Countdown ---- */
@@ -115,13 +135,13 @@
 
   /* ---- Boot log ---- */
   var lines = PL('log', [
-    'ok|ollama serve — model llama3.1 loaded',
-    'p|oscap --version  →  OpenSCAP 1.4.0',
-    'ok|scap-security-guide  DISA STIG for RHEL 10',
-    'p|crew: scanner · analyst · remediation · compliance',
-    'warn|approval gate: REQUIRE_APPROVAL=true',
-    'ok|air-gapped — no cloud API calls',
-    '|awaiting operator'
+    'ok|lab up — 4 nodes, all green',
+    'p|obs: 1080p60 · nvenc · cq 18',
+    'ok|mic armed  levels nominal',
+    'p|tonight: homelab hardening, start to finish',
+    'warn|coffee: critically low',
+    'ok|chat is open — say hi',
+    '|standing by'
   ]);
   var log = document.getElementById('log');
   lines.forEach(function (raw, i) {
@@ -140,8 +160,8 @@
 
   /* ---- Ticker ---- */
   var items = PL('ticker', [
-    'DISA STIG · RHEL 10', 'CrewAI multi-agent', 'Local LLM via Ollama',
-    'OpenSCAP + SSG', 'Human-in-the-loop approval', 'Idempotent Ansible'
+    'TechFitDad', 'Homelab · Security+ · IT career',
+    'New builds every week', 'Subscribe for the next one'
   ]);
   fillTicker(document.getElementById('tick'), items);
 </script>

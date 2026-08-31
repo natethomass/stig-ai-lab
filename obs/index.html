@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>STIG AI Lab — OBS Theme Pack</title>
+<title>TechFitDad Broadcast Kit</title>
 <link rel="stylesheet" href="theme.css">
 <style>
   /* This page is for YOU, not for OBS. Open it in a browser to preview every
@@ -48,23 +48,42 @@
     border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
   }
   .ctl button.pri { background: linear-gradient(100deg, var(--brand), var(--brand-2));
-                    color: #04140d; border-color: transparent; font-weight: 700; }
+                    color: var(--on-brand); border-color: transparent; font-weight: 700; }
   .ctl button:hover, .ctl a.btn:hover { border-color: var(--brand); }
   .params { padding: 0 24px 20px; font-family: var(--mono); font-size: 12.5px;
             color: var(--mute); line-height: 1.9; }
   .params b { color: var(--brand-2); font-weight: 500; }
   .url { padding: 0 24px 22px; font-family: var(--mono); font-size: 12px;
          color: var(--mute); word-break: break-all; }
+
+  .brandpick { display: flex; align-items: center; gap: 12px; margin-top: 26px;
+               font-family: var(--mono); font-size: 13px; letter-spacing: .1em;
+               text-transform: uppercase; color: var(--dim); }
+  .brandpick select {
+    padding: 9px 12px; border-radius: var(--r-sm); border: 1px solid var(--line);
+    background: #0a0e14; color: var(--text); font-family: var(--mono); font-size: 13px;
+  }
+  .brandpick select:focus { outline: none; border-color: var(--brand); }
+  .brandpick .hint { text-transform: none; letter-spacing: 0; color: var(--mute); }
+  .brandpick code { color: var(--brand-2); }
 </style>
 </head>
 <body>
 <div class="page">
   <header>
     <div class="kicker">obs theme pack</div>
-    <h1>STIG AI Lab — broadcast kit</h1>
+    <h1>TechFitDad — broadcast kit</h1>
     <p>Every scene below is a plain HTML file. In OBS add a <b>Browser</b> source, leave
        “Local file” <em>unchecked</em>, and paste the URL from each card — that is the only way
        query parameters survive. Canvas: <b>1920 × 1080</b> unless noted.</p>
+    <div class="brandpick">
+      <label for="brand">Brand</label>
+      <select id="brand">
+        <option value="techfitdad">TechFitDad — volt</option>
+        <option value="stig">STIG AI Lab — green</option>
+      </select>
+      <span class="hint">swaps <code>brands/&lt;name&gt;.css</code> across every scene below</span>
+    </div>
     <div class="rule"></div>
   </header>
   <div class="grid" id="grid"></div>
@@ -75,23 +94,23 @@ const DIR = location.href.replace(/[^/]*$/, '');
 
 const SCENES = [
   { file: 'starting-soon.html', name: 'Starting Soon', size: '1920 × 1080',
-    desc: 'Opening hold card with a countdown, a live boot log and a severity readout.',
+    desc: 'Opening hold card — countdown, live boot log, and three agenda tiles for what the video covers.',
     qs: 'mins=5&title=Starting%20Soon',
-    params: 'mins · title · sub · kicker · host · cat1 · cat2 · cat3 · done · log (a|b|c) · ticker (a|b|c)' },
+    params: 'mins · title · sub · kicker · host · done · agenda (value:label:tone) · log (tone|text) · ticker (a|b|c)' },
 
   { file: 'scene-card.html', name: 'Scene / Chapter Card', size: '1920 × 1080',
     desc: 'Full-screen chapter break. bg=clear turns it into a translucent slab you can lay over a screen share.',
-    qs: 'num=03&title=The%20approval%20gate&step=3',
+    qs: 'num=03&title=Locking%20the%20box%20down&step=3',
     params: 'num · title · sub · step (1-6) · phases (a|b|c) · bg (solid|clear) · pipe (on|off) · hold (secs, 0 = stay)' },
 
   { file: 'topic-bar.html', name: 'Topic Bar', size: '1920 × 1080 (transparent)',
-    desc: 'Persistent top strip: REC dot, elapsed timer, current chapter and the six-phase pipeline.',
-    qs: 'chapter=Ch%2003&topic=Interactive%20remediation&step=3',
+    desc: 'Persistent top strip: REC dot, elapsed timer, current chapter and where you are in the run.',
+    qs: 'chapter=Ch%2003&topic=Hardening%20the%20homelab&step=3',
     params: 'chapter · topic · step (1-6) · phases (a|b|c) · rec (on|off) · pipe (on|off)' },
 
   { file: 'lower-third.html', name: 'Lower Third', size: '1920 × 1080 (transparent)',
     desc: 'Name / role card that wipes in and hides itself again. dur=0 keeps it up for good.',
-    qs: 'name=Nate%20Thomas&role=STIG%20AI%20Hardening%20Lab&dur=8',
+    qs: 'name=Nate&role=TechFitDad&dur=8',
     params: 'name · role · meta · pos (bl|br|tl|tr) · dur (secs, 0 = stay)' },
 
   { file: 'camera-frame.html', name: 'Camera Frame', size: 'match your webcam source',
@@ -100,22 +119,33 @@ const SCENES = [
     params: 'label · dot (rec|ok|warn) · tag (on|off) · scan (on|off)' },
 
   { file: 'brb.html', name: 'Be Right Back', size: '1920 × 1080',
-    desc: 'Break card with its own countdown, framed as a held approval gate.',
+    desc: 'Break card with its own countdown.',
     qs: 'mins=5',
-    params: 'mins · title · sub · step (1-6) · done · ticker (a|b|c)' },
+    params: 'mins · title · sub · status · status2 · step (1-6) · done · ticker (a|b|c)' },
 
   { file: 'outro.html', name: 'Outro / End Screen', size: '1920 × 1080',
-    desc: 'Closing card with a before → after compliance score and dashed guides where YouTube end-screen elements land.',
+    desc: 'Closing card with dashed guides where YouTube end-screen elements land. score=off drops the before → after block.',
     qs: 'before=43.2%25&after=91.7%25',
-    params: 'title (accepts &lt;br&gt;) · sub · kicker · before · after · link1 · link2 · guides (on|off)' },
+    params: 'title (accepts &lt;br&gt;) · sub · kicker · before · after · beforecap · aftercap · score (on|off) · link1 · link2 · guides (on|off)' },
 
   { file: 'thumbnail.html', name: 'Thumbnail Template', size: '1280 × 720',
-    desc: 'Not an overlay — open it at 1280 × 720 and screenshot for a channel-consistent thumbnail.',
-    qs: 'head=I%20let%20an%20AI%7Charden%20RHEL%2010&score=43%25',
+    desc: 'Not an overlay — open it at 1280 × 720 and screenshot. The headline shrinks to fit whatever you type.',
+    qs: 'head=I%20broke%20my%20homelab%7Con%20purpose&score=94%25&scorecap=uptime',
     params: 'head (line1|line2) · kicker · tag · score · scorecap · cat1 · cat2 · cat3' }
 ];
 
+/* Shared by every full-screen scene: wordmark · brandname · accent · mark ·
+   logo (image path) · tagline · brand (token layer). */
+
+
 const grid = document.getElementById('grid');
+const applies = [];
+let BRAND = 'techfitdad';
+
+document.getElementById('brand').addEventListener('change', e => {
+  BRAND = e.target.value;
+  applies.forEach(fn => fn());
+});
 
 SCENES.forEach((s, i) => {
   const w = s.file === 'thumbnail.html' ? 1280 : 1920;
@@ -141,7 +171,11 @@ SCENES.forEach((s, i) => {
 
   const pv = card.querySelector('#pv' + i);
   const fr = card.querySelector('#fr' + i);
-  const url = () => DIR + s.file + (card.querySelector('#in' + i).value ? '?' + card.querySelector('#in' + i).value : '');
+  const url = () => {
+    const qs = [card.querySelector('#in' + i).value, BRAND === 'techfitdad' ? '' : 'brand=' + BRAND]
+      .filter(Boolean).join('&');
+    return DIR + s.file + (qs ? '?' + qs : '');
+  };
 
   function fit() {
     const scale = pv.clientWidth / w;
@@ -169,6 +203,7 @@ SCENES.forEach((s, i) => {
     }
   };
 
+  applies.push(apply);
   apply(); fit();
   window.addEventListener('resize', fit);
 });

@@ -1,0 +1,20 @@
+/* STIG AI Lab — the project's own green, kept so the original pack still
+   renders exactly as designed. Load it with ?brand=stig */
+
+:root {
+  --brand:    #00e08a;
+  --brand-2:  #22d3ee;
+  --on-brand: #04140d;
+
+  --brand-faint: rgba(0, 224, 138, 0.07);
+  --brand-soft:  rgba(0, 224, 138, 0.28);
+  --brand-glow:  rgba(0, 224, 138, 0.45);
+
+  --glow-1: rgba(0, 224, 138, 0.10);
+  --glow-2: rgba(34, 211, 238, 0.10);
+  --sweep:  rgba(0, 224, 138, 0.055);
+
+  --bg:    #080b10;
+  --bg-2:  #0d121a;
+  --scrim: rgba(8, 11, 16, 0.72);
+}

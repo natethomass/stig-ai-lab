@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Topic Bar — STIG AI Lab</title>
 <link rel="stylesheet" href="theme.css">
+<script src="brand.js"></script>
 <style>
   .bar {
     position: absolute; top: 40px; left: var(--safe); right: var(--safe);
@@ -38,7 +39,7 @@
     <div class="sep"></div>
     <div class="topic">
       <div class="n" data-p="chapter">Ch 03</div>
-      <div class="txt" data-p="topic">Interactive remediation — the approval gate</div>
+      <div class="txt" data-p="topic">Hardening the homelab, end to end</div>
     </div>
     <div class="sep"></div>
     <div class="pipe-mini" id="pipe"></div>
@@ -49,7 +50,7 @@
 <script>
   bindText({
     chapter: P('chapter', 'Ch 03'),
-    topic:   P('topic', 'Interactive remediation — the approval gate')
+    topic:   P('topic', 'Hardening the homelab, end to end')
   });
 
   if (P('rec', 'on') === 'off') document.getElementById('rec').style.display = 'none';

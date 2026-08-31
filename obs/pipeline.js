@@ -1,7 +1,8 @@
-/* The six phases of the STIG AI Lab run, shared by several overlays.
-   Override with ?phases=Scan|Analyse|Approve  and highlight with ?step=2 (1-based). */
+/* Video chapters, shared by several overlays. Override with
+   ?phases=Recon|Exploit|Harden and highlight with ?step=2 (1-based).
+   For a STIG AI Lab run: ?phases=Scan|Analyse|Approve|Remediate|Apply|Validate */
 (function (w) {
-  var DEFAULT = ['Scan', 'Analyse', 'Approve', 'Remediate', 'Apply', 'Validate'];
+  var DEFAULT = ['Intro', 'Setup', 'Build', 'Break', 'Fix', 'Wrap'];
 
   w.renderPipe = function (host, step, phases) {
     phases = phases || (w.PL ? PL('phases', DEFAULT) : DEFAULT);
@@ -23,7 +24,7 @@
 /* Compact variant: dots + the active phase name + an n/N counter. */
 (function (w) {
   w.renderPipeMini = function (host, step, phases) {
-    phases = phases || (w.PL ? PL('phases', ['Scan','Analyse','Approve','Remediate','Apply','Validate']) : []);
+    phases = phases || (w.PL ? PL('phases', ['Intro','Setup','Build','Break','Fix','Wrap']) : []);
     var dots = phases.map(function (_, i) {
       return '<span class="d' + (i + 1 === step ? ' on' : (i + 1 < step ? ' done' : '')) + '"></span>';
     }).join('');

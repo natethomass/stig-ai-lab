@@ -18,9 +18,18 @@
   --dim:  #8a98a9;
   --mute: #5b6675;
 
-  /* Brand — compliance green / scanner cyan */
-  --brand:   #00e08a;
-  --brand-2: #22d3ee;
+  /* Brand — overridden per channel by brands/<name>.css (see brand.js).
+     These are fallbacks so a scene still renders if no brand file loads. */
+  --brand:      #c2f53f;   /* primary accent */
+  --brand-2:    #35d6f5;   /* gradient partner */
+  --on-brand:   #0b1405;   /* ink on a brand-filled surface */
+  --brand-faint: rgba(194, 245, 63, 0.07);
+  --brand-soft:  rgba(194, 245, 63, 0.30);
+  --brand-glow:  rgba(194, 245, 63, 0.45);
+  --glow-1: rgba(194, 245, 63, 0.10);
+  --glow-2: rgba(53, 214, 245, 0.10);
+  --sweep:  rgba(194, 245, 63, 0.055);
+  --scrim:  rgba(8, 11, 18, 0.72);
 
   /* Severity — mirrors CAT I / II / III in the app */
   --cat1: #ff4d61;
@@ -59,8 +68,8 @@ html, body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(1200px 700px at 22% 18%, rgba(0, 224, 138, 0.10), transparent 62%),
-    radial-gradient(1000px 800px at 88% 92%, rgba(34, 211, 238, 0.10), transparent 60%),
+    radial-gradient(1200px 700px at 22% 18%, var(--glow-1), transparent 62%),
+    radial-gradient(1000px 800px at 88% 92%, var(--glow-2), transparent 60%),
     linear-gradient(160deg, var(--bg-2) 0%, var(--bg) 62%);
   overflow: hidden;
 }
@@ -93,7 +102,7 @@ html, body {
   position: absolute;
   left: 0; right: 0;
   height: 220px;
-  background: linear-gradient(180deg, transparent, rgba(0, 224, 138, 0.055), transparent);
+  background: linear-gradient(180deg, transparent, var(--sweep), transparent);
   animation: sweep 9s cubic-bezier(.45,0,.55,1) infinite;
   pointer-events: none;
 }
@@ -227,7 +236,7 @@ html, body {
   display: flex;
   align-items: center;
   border-top: 1px solid var(--line);
-  background: rgba(8, 11, 16, 0.72);
+  background: var(--scrim);
   backdrop-filter: blur(8px);
   overflow: hidden;
   white-space: nowrap;
@@ -269,17 +278,17 @@ html, body {
   font-style: normal; font-size: 12px; color: var(--mute);
   border-right: 1px solid var(--line); padding-right: 10px;
 }
-.pipe .node.done { color: var(--dim); border-color: rgba(0, 224, 138, 0.28); }
+.pipe .node.done { color: var(--dim); border-color: var(--brand-soft); }
 .pipe .node.done em { color: var(--brand); }
 .pipe .node.active {
-  color: #04140d;
+  color: var(--on-brand);
   background: linear-gradient(100deg, var(--brand), var(--brand-2));
   border-color: transparent;
-  box-shadow: 0 0 34px rgba(0, 224, 138, 0.35);
+  box-shadow: 0 0 34px var(--brand-glow);
 }
-.pipe .node.active em { color: rgba(4, 20, 13, 0.65); border-color: rgba(4, 20, 13, 0.28); }
+.pipe .node.active em { color: var(--on-brand); opacity: .7; border-color: currentColor; }
 .pipe .link { width: 22px; height: 1px; background: var(--line); flex: none; }
-.pipe .link.done { background: linear-gradient(90deg, var(--brand), rgba(0, 224, 138, 0.3)); }
+.pipe .link.done { background: linear-gradient(90deg, var(--brand), var(--brand-soft)); }
 
 /* Compact pipeline — for the topic bar, where label room is scarce */
 .pipe-mini { display: flex; align-items: center; gap: 12px; flex: none; }
@@ -289,11 +298,11 @@ html, body {
   background: rgba(122, 200, 255, 0.18);
   transition: all .4s cubic-bezier(.16,1,.3,1);
 }
-.pipe-mini .d.done { background: rgba(0, 224, 138, 0.5); }
+.pipe-mini .d.done { background: var(--brand-glow); }
 .pipe-mini .d.on {
   width: 26px; border-radius: 999px;
   background: linear-gradient(90deg, var(--brand), var(--brand-2));
-  box-shadow: 0 0 16px rgba(0, 224, 138, 0.5);
+  box-shadow: 0 0 16px var(--brand-glow);
 }
 .pipe-mini .lbl {
   font-family: var(--mono); font-size: 14px; letter-spacing: .18em;
@@ -302,4 +311,28 @@ html, body {
 .pipe-mini .count {
   font-family: var(--mono); font-size: 13px; letter-spacing: .1em;
   color: var(--mute); font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Channel wordmark ---------- */
+
+.wordmark {
+  display: inline-flex; align-items: center; gap: 14px;
+  font-family: var(--mono); font-weight: 700;
+  font-size: 22px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--text);
+}
+.wordmark .mark {
+  width: 40px; height: 40px; flex: none;
+  display: grid; place-content: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: var(--on-brand);
+  font-size: 19px; font-weight: 800; letter-spacing: 0;
+  box-shadow: 0 0 28px var(--brand-glow);
+}
+.wordmark img.mark { object-fit: contain; background: none; box-shadow: none; }
+.wordmark b { font-weight: 700; color: var(--brand); }
+.wordmark .tag {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.24em;
+  color: var(--mute); padding-left: 14px; border-left: 1px solid var(--line);
 }

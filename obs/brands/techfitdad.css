@@ -1,0 +1,23 @@
+/* TechFitDad — channel identity.
+   Volt on deep navy: the volt reads as energy/"fit", the cyan keeps it
+   technical, and both hold up against a dark terminal capture behind them.
+   Swap the two hex values at the top for your real brand colours and adjust
+   the matching rgba steps below (same colour, different alpha). */
+
+:root {
+  --brand:    #c2f53f;   /* volt  — primary accent */
+  --brand-2:  #35d6f5;   /* cyan  — gradient partner */
+  --on-brand: #0b1405;   /* ink on a volt-filled surface */
+
+  --brand-faint: rgba(194, 245, 63, 0.07);
+  --brand-soft:  rgba(194, 245, 63, 0.30);
+  --brand-glow:  rgba(194, 245, 63, 0.45);
+
+  --glow-1: rgba(194, 245, 63, 0.09);
+  --glow-2: rgba(53, 214, 245, 0.11);
+  --sweep:  rgba(194, 245, 63, 0.05);
+
+  --bg:    #070a11;
+  --bg-2:  #0d1420;
+  --scrim: rgba(7, 10, 17, 0.74);
+}

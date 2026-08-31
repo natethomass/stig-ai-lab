@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <title>Scene Card — STIG AI Lab</title>
 <link rel="stylesheet" href="theme.css">
+<script src="brand.js"></script>
 <style>
   .card { position: absolute; inset: 0; display: grid; place-content: center;
           justify-items: start; gap: 0; padding: 0 var(--safe); }
   .num {
     font-family: var(--mono); font-size: 240px; font-weight: 800; line-height: 0.82;
     letter-spacing: -0.06em;
-    -webkit-text-stroke: 2px rgba(0, 224, 138, 0.55); color: transparent;
+    -webkit-text-stroke: 2px var(--brand-glow); color: transparent;
     opacity: .9;
   }
   h1 { margin-top: 18px; font-size: 92px; font-weight: 800; letter-spacing: -0.035em;
@@ -32,9 +33,9 @@
   <div class="sweep"></div>
   <div class="card">
     <div class="num rise" data-p="num">03</div>
-    <h1 class="rise" style="animation-delay:.08s" data-p="title">The approval gate</h1>
+    <h1 class="rise" style="animation-delay:.08s" data-p="title">Locking the box down</h1>
     <div class="rule rise" style="animation-delay:.14s"></div>
-    <p class="sub rise" style="animation-delay:.18s" data-p="sub">Every proposed Ansible task gets reviewed by a human before a single file is touched.</p>
+    <p class="sub rise" style="animation-delay:.18s" data-p="sub">Every change gets explained before it is applied — no magic, no hand-waving.</p>
     <div class="pipe rise" id="pipe" style="animation-delay:.24s; margin-top:34px"></div>
   </div>
 </div>
@@ -44,8 +45,8 @@
 <script>
   bindText({
     num:   P('num', '03'),
-    title: P('title', 'The approval gate'),
-    sub:   P('sub', 'Every proposed Ansible task gets reviewed by a human before a single file is touched.')
+    title: P('title', 'Locking the box down'),
+    sub:   P('sub', 'Every change gets explained before it is applied — no magic, no hand-waving.')
   });
 
   if (P('bg', 'solid') === 'clear') document.body.classList.add('clear');

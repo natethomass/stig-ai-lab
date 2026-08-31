@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <title>Outro — STIG AI Lab</title>
 <link rel="stylesheet" href="theme.css">
+<script src="brand.js"></script>
 <style>
+  .brandbar { position: absolute; top: 46px; left: 88px; }
+
   .wrap { position: absolute; inset: 72px 88px 96px; display: grid;
           grid-template-columns: 1fr 760px; gap: 64px; align-items: center; }
 
@@ -20,7 +23,7 @@
     font-family: var(--mono); font-size: 62px; font-weight: 700; line-height: 1;
     font-variant-numeric: tabular-nums;
   }
-  .score .num { color: var(--brand); text-shadow: 0 0 34px rgba(0, 224, 138, 0.28); }
+  .score .num { color: var(--brand); text-shadow: 0 0 34px var(--brand-soft); }
   .score .was { color: var(--mute); text-decoration: line-through;
                 text-decoration-color: var(--cat1); text-decoration-thickness: 3px; }
   .score .arrow { color: var(--mute); font-size: 34px; padding-bottom: 8px; }
@@ -48,20 +51,21 @@
 <body>
 <div class="stage">
   <div class="sweep"></div>
+  <div class="brandbar"><div id="wm"></div></div>
   <div class="wrap">
     <section class="lead">
       <div class="kicker rise" data-p="kicker">end of run</div>
       <h1 class="rise" style="animation-delay:.06s" data-p="title">Thanks for<br>watching</h1>
       <p class="rise" style="animation-delay:.12s" data-p="sub">Repo, playbooks and the full scan reports are linked in the description.</p>
       <div class="rule rise" style="animation-delay:.16s"></div>
-      <div class="score rise" style="animation-delay:.2s">
+      <div class="score rise" id="score" style="animation-delay:.2s">
         <div>
-          <div class="cap">baseline</div>
+          <div class="cap" data-p="beforecap">before</div>
           <div class="was" data-p="before">43.2%</div>
         </div>
         <div class="arrow">→</div>
         <div>
-          <div class="cap">hardened</div>
+          <div class="cap" data-p="aftercap">after</div>
           <div class="num" data-p="after">91.7%</div>
         </div>
       </div>
@@ -80,15 +84,23 @@
 </div>
 
 <script src="params.js"></script>
+<script src="wordmark.js"></script>
 <script>
+  renderWordmark(document.getElementById('wm'));
+
   bindText({
-    kicker: P('kicker', 'end of run'),
-    sub:    P('sub', 'Repo, playbooks and the full scan reports are linked in the description.'),
-    before: P('before', '43.2%'),
-    after:  P('after', '91.7%'),
-    link1:  P('link1', 'github.com/natethomass/stig-ai-lab'),
-    link2:  P('link2', 'Subscribe for the next build')
+    kicker:    P('kicker', 'that is a wrap'),
+    sub:       P('sub', 'Everything I used is linked in the description — build notes, configs, the lot.'),
+    before:    P('before', '43.2%'),
+    after:     P('after', '91.7%'),
+    beforecap: P('beforecap', 'before'),
+    aftercap:  P('aftercap', 'after'),
+    link1:     P('link1', 'youtube.com/@techfitdad'),
+    link2:     P('link2', 'Subscribe for the next build')
   });
+
+  /* ?score=off drops the before → after block on videos that have no metric */
+  if (P('score', 'on') === 'off') document.getElementById('score').style.display = 'none';
   document.querySelector('[data-p="title"]').innerHTML =
     P('title', 'Thanks for<br>watching');
   /* ?guides=off hides the dashed end-screen placement boxes */

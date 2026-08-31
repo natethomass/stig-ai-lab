@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Be Right Back — STIG AI Lab</title>
 <link rel="stylesheet" href="theme.css">
+<script src="brand.js"></script>
 <style>
   .wrap { position: absolute; inset: 0; display: grid; place-content: center;
           justify-items: center; text-align: center; gap: 30px; padding: 0 var(--safe); }
@@ -19,15 +20,17 @@
     font-variant-numeric: tabular-nums; color: var(--cat2);
     text-shadow: 0 0 40px rgba(255, 176, 32, 0.25);
   }
-  .clock.done { color: var(--brand); text-shadow: 0 0 40px rgba(0, 224, 138, 0.3); }
+  .clock.done { color: var(--brand); text-shadow: 0 0 40px var(--brand-soft); }
   .pipe { margin-top: 8px; }
+  .brandbar { position: absolute; top: 46px; left: var(--safe); }
 </style>
 </head>
 <body>
 <div class="stage">
   <div class="sweep"></div>
+  <div class="brandbar"><div id="wm"></div></div>
   <div class="wrap">
-    <div class="badge rise"><span class="dot warn"></span> <b>Session paused</b> · approval gate held</div>
+    <div class="badge rise"><span class="dot warn"></span> <b data-p="status">Short break</b> · <span data-p="status2">back shortly</span></div>
     <h1 class="rise" style="animation-delay:.08s" data-p="title">Be Right Back</h1>
     <div class="rule rise" style="animation-delay:.14s"></div>
     <p class="sub rise" style="animation-delay:.2s" data-p="sub">Scan state is preserved — nothing is applied while I'm away.</p>
@@ -38,12 +41,17 @@
 </div>
 
 <script src="params.js"></script>
+<script src="wordmark.js"></script>
 <script src="ticker.js"></script>
 <script src="pipeline.js"></script>
 <script>
+  renderWordmark(document.getElementById('wm'));
+
   bindText({
-    title: P('title', 'Be Right Back'),
-    sub:   P('sub', "Scan state is preserved — nothing is applied while I'm away.")
+    title:   P('title', 'Be Right Back'),
+    sub:     P('sub', 'Stretch, hydrate, and I will see you in a minute.'),
+    status:  P('status', 'Short break'),
+    status2: P('status2', 'back shortly')
   });
 
   renderPipe(document.getElementById('pipe'), PN('step', 3));
@@ -57,7 +65,7 @@
     setTimeout(tick, 250);
   })();
 
-  var items = PL('ticker', ['Be right back', 'Nothing is being applied', 'Scan results cached in reports/']);
+  var items = PL('ticker', ['Be right back', 'Grab water', 'TechFitDad']);
   fillTicker(document.getElementById('tick'), items);
 </script>
 </body>

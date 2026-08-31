@@ -4,22 +4,32 @@
 <meta charset="utf-8">
 <title>Thumbnail Template — STIG AI Lab</title>
 <link rel="stylesheet" href="theme.css">
+<script src="brand.js"></script>
 <style>
   /* 1280x720 — open in a browser at that size and screenshot, or point an OBS
      browser source at it and use Screenshot (Source) from the right-click menu. */
+  /* Top-aligned on purpose: the lower third of the frame is left clear so you
+     can composite a face cutout or a screenshot there in your editor. */
   .tn { position: absolute; inset: 0; display: grid;
-        grid-template-columns: 1fr 400px; gap: 36px; align-items: center;
-        padding: 56px 60px; }
+        grid-template-columns: 1fr 400px; gap: 36px; align-items: start;
+        padding: 72px 60px; }
 
+  /* min-width:0 stops the nowrap headline forcing the grid column wider than
+     its share — without it the measure-and-shrink below never triggers. */
+  .left { min-width: 0; }
   .left .kicker { font-size: 22px; letter-spacing: .34em; margin-bottom: 18px; }
   .left h1 {
-    font-size: 96px; line-height: 0.92; font-weight: 800; letter-spacing: -0.045em;
+    font-size: 104px; line-height: 0.92; font-weight: 800; letter-spacing: -0.045em;
     text-transform: uppercase; color: #fff;
     text-shadow: 0 6px 40px rgba(0, 0, 0, 0.6);
   }
-  .left h1 em { font-style: normal;
+  /* Each line stays on one line; JS shrinks the whole block until it fits, so
+     any headline you pass in lands on the layout instead of orphaning a word. */
+  .left h1 .l { display: block; white-space: nowrap; }
+  .left h1 .l.em {
     background: linear-gradient(100deg, var(--brand), var(--brand-2));
-    -webkit-background-clip: text; background-clip: text; color: transparent; }
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
   .left .tag {
     display: inline-block; margin-top: 26px; padding: 10px 20px;
     background: var(--cat1); color: #fff; border-radius: var(--r-sm);
@@ -30,8 +40,8 @@
 
   .right { display: grid; gap: 18px; justify-items: stretch; }
   .gauge {
-    border: 2px solid rgba(0, 224, 138, .4); border-radius: var(--r-lg);
-    background: rgba(0, 224, 138, .07);
+    border: 2px solid var(--brand-glow); border-radius: var(--r-lg);
+    background: var(--brand-faint);
     padding: 26px 28px; text-align: center;
   }
   .gauge .n { font-family: var(--mono); font-size: 92px; font-weight: 800; color: var(--brand);
@@ -51,8 +61,8 @@
 <div class="stage">
   <div class="tn">
     <div class="left">
-      <div class="kicker" data-p="kicker">stig ai lab</div>
-      <h1 id="head">I let an AI<br><em>harden RHEL 10</em></h1>
+      <div class="kicker" data-p="kicker">techfitdad</div>
+      <h1 id="head"></h1>
       <div class="tag" data-p="tag">205 findings</div>
     </div>
     <div class="right">
@@ -72,15 +82,24 @@
 <script src="params.js"></script>
 <script>
   bindText({
-    kicker: P('kicker', 'stig ai lab'),
+    kicker: P('kicker', 'techfitdad'),
     tag: P('tag', '205 findings'),
     score: P('score', '43%'), scorecap: P('scorecap', 'compliance'),
     cat1: P('cat1', '14'), cat2: P('cat2', '122'), cat3: P('cat3', '69')
   });
-  /* ?head=I let an AI|harden RHEL 10  — second line gets the gradient */
-  var h = PL('head', null);
-  if (h) document.getElementById('head').innerHTML =
-    h.map(function (l, i) { return i ? '<em>' + l + '</em>' : l; }).join('<br>');
+  /* ?head=line one|line two — every line after the first gets the gradient */
+  var head = document.getElementById('head');
+  PL('head', ['I let an AI', 'harden my server']).forEach(function (line, i) {
+    var el = document.createElement('span');
+    el.className = 'l' + (i ? ' em' : '');
+    el.textContent = line;
+    head.appendChild(el);
+  });
+
+  /* Shrink to fit the column — headlines are user text, so never assume a size */
+  for (var size = 104; size > 44 && head.scrollWidth > head.clientWidth; size -= 2) {
+    head.style.fontSize = size + 'px';
+  }
 </script>
 </body>
 </html>

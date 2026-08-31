@@ -225,13 +225,15 @@ REQUIRE_APPROVAL=true
 
 ## Recording / Streaming Theme
 
-An OBS overlay pack themed to this project lives in [`obs/`](obs/) — starting-soon and
-break cards with countdowns, a topic bar that tracks the six agent phases, lower thirds,
-a webcam frame, an outro with a before → after compliance score, and a thumbnail template.
-Plain HTML with no CDNs or web fonts, so it runs on the same air-gapped box as the lab.
+The [`obs/`](obs/) directory holds an OBS overlay pack for recording videos about this
+project — starting-soon and break cards with countdowns, a topic bar that tracks the run,
+lower thirds, a webcam frame, an outro with a before → after compliance score, and a
+thumbnail template. Plain HTML with no CDNs or web fonts, so it runs on the same
+air-gapped box as the lab.
 
-Open `obs/index.html` to preview every scene and copy its OBS Browser source URL.
-Setup notes are in [`obs/README.md`](obs/README.md).
+It ships two brand layers: the **TechFitDad** channel identity (default) and the project's
+own green, loaded with `?brand=stig`. Open `obs/index.html` to preview every scene and copy
+its OBS Browser source URL. Setup notes are in [`obs/README.md`](obs/README.md).
 
 ---
 
