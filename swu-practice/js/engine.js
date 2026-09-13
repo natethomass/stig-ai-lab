@@ -128,7 +128,9 @@
   };
   // "You play ..." / "Opponent plays ..."
   Game.prototype.says = function (side, verb) {
-    return this.name(side) + ' ' + (side === 'you' ? verb : verb + (/(s|sh|ch|x)$/.test(verb) ? 'es' : 's'));
+    var name = this.name(side);
+    var secondPerson = side === 'you' && name === 'You';
+    return name + ' ' + (secondPerson ? verb : verb + (/(s|sh|ch|x)$/.test(verb) ? 'es' : 's'));
   };
   Game.prototype.cardLabel = function (c) {
     var d = c.def;
@@ -400,7 +402,7 @@
       this.pending = null;
       this.actionInProgress = false;
       this.log(this.winner === 'draw' ? 'Both bases are destroyed — a draw.'
-        : this.name(this.winner) + ' win' + (this.winner === 'you' ? '' : 's') + ' the game!');
+        : this.says(this.winner, 'win') + ' the game!');
     }
   };
 
@@ -571,11 +573,11 @@
       case 'initiative':
         this.initiativeClaimedBy = side;
         this.initiative = side;
-        this.log(this.name(side) + ' take' + (side === 'you' ? '' : 's') + ' the initiative.');
+        this.log(this.says(side, 'take') + ' the initiative.');
         break;
       case 'pass':
         this.passed[side] = true;
-        this.log(this.name(side) + ' pass' + (side === 'you' ? '' : 'es') + '.');
+        this.log(this.says(side, 'pass') + '.');
         break;
     }
     if (action.kind !== 'pass') this.passed[side] = false;

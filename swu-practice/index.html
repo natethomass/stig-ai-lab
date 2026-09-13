@@ -26,12 +26,13 @@
         <circle cx="31" cy="30" r="2.2" fill="#c0392b"/>
       </svg>
       <div>
-        <h1>Vader Sealed <span class="sub">A Lawless Time</span></h1>
+        <h1>Vader Sealed <span class="sub">A Lawless Time</span> <span class="pilot" id="pilot" hidden></span></h1>
         <p class="deckline" id="deckline">
           <span class="asp Aggression">Aggression</span>
           <span class="asp Villainy">Villainy</span>
           <span class="asp Cunning">Cunning</span>
-          <span class="dl-sep">·</span> Darth Vader — Unstoppable <span class="dl-sep">·</span> Partisan Hideout
+          <span class="dl-cards"><span class="dl-sep">·</span> Darth Vader — Unstoppable
+            <span class="dl-sep">·</span> Partisan Hideout</span>
         </p>
       </div>
     </div>
@@ -46,7 +47,7 @@
     </label>
     <button id="new-game" class="btn primary">New game</button>
     <button id="show-deck" class="btn">Decklist</button>
-    <button id="show-art" class="btn">Card art</button>
+    <button id="show-settings" class="btn">Settings</button>
   </div>
 </header>
 
@@ -85,7 +86,7 @@
         <div class="leaderbox" id="you-leader"></div>
       </div>
       <div class="side-head">
-        <span class="who">You</span>
+        <span class="who" id="me-label">You</span>
         <span class="chip" id="you-deck">Deck 0</span>
         <span class="chip" id="you-discard">Discard 0</span>
         <span class="chip" id="you-res">Resources 0</span>
@@ -119,6 +120,7 @@
   </div>
 </div>
 
+<script src="js/prefs.js"></script>
 <script src="js/art.js"></script>
 <script src="js/cards.js"></script>
 <script src="js/opponent-deck.js"></script>

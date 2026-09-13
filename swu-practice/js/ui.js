@@ -139,10 +139,13 @@
       hand.appendChild(node);
     });
 
+    var meLabel = $('me-label');
+    if (meLabel) meLabel.textContent = g.player('you').name;
     renderStatus();
     renderWinOverlay();
     renderPrompt(pending);
     renderActions(acts, pending);
+    syncDockHeight();
     renderLog();
   }
 
@@ -220,7 +223,7 @@
       ? (g.pending.side === 'you' ? 'Waiting on your choice' : 'Opponent is choosing…')
       : (g.activePlayer === 'you' ? 'Your turn — take one action' : 'Opponent is thinking…')));
     var init = el('div', 'init');
-    init.innerHTML = 'Initiative: <b>' + (g.initiative === 'you' ? 'You' : 'Opponent') + '</b>' +
+    init.innerHTML = 'Initiative: <b>' + (g.initiative === 'you' ? g.player('you').name : 'Opponent') + '</b>' +
       (g.initiativeClaimedBy ? ' (claimed this round)' : ' (unclaimed this round)');
     box.appendChild(init);
   }
@@ -270,9 +273,17 @@
         b.onclick = function () { act(a); };
         box.appendChild(b);
       });
-    var hint = el('div', 'turn',
+    var hint = el('div', 'turn hint',
       'Click a highlighted hand card to play it, or a green unit to attack.');
     box.appendChild(hint);
+  }
+
+  // The mobile hand docks above the action bar; measure it rather than guessing.
+  function syncDockHeight() {
+    var bar = $('actions');
+    if (!bar || !global.document) return;
+    var h = Math.ceil(bar.getBoundingClientRect().height);
+    global.document.documentElement.style.setProperty('--dock-h', (h || 54) + 'px');
   }
 
   function renderLog() {
@@ -335,6 +346,7 @@
     global.SWU_AI.setDifficulty($('difficulty').value);
     g = new global.SWU_ENGINE.Game({});
     global.swuGame = g;                       // handy for the console
+    applyIdentity();
     g.start();
     render();
     scheduleAi();
@@ -389,6 +401,17 @@
     });
   }
 
+  // Name goes on the header badge and straight into the running game.
+  function applyIdentity() {
+    var name = global.SWU_PREFS.name;
+    var badge = $('pilot');
+    if (badge) {
+      badge.textContent = name === 'You' ? '' : name;
+      badge.hidden = name === 'You';
+    }
+    if (g) g.players.you.name = name;
+  }
+
   function renderWinOverlay() {
     var ov = $('win-overlay');
     if (!ov) return;
@@ -411,16 +434,65 @@
     ov.appendChild(box);
   }
 
-  // --------------------------------------------------------------- art modal
-  function showArtSettings() {
+  // ----------------------------------------------------------- settings modal
+  function showSettings() {
     var cfg = global.SWU_ART.config;
     var body = $('modal-body');
     body.innerHTML = '';
-    body.appendChild(el('h2', null, 'Card art'));
+
+    // --- profile -----------------------------------------------------------
+    body.appendChild(el('h2', null, 'Settings'));
+    body.appendChild(el('h3', 'sect', 'Your name'));
+    var nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'artinput';
+    nameInput.maxLength = 24;
+    nameInput.placeholder = 'You';
+    nameInput.value = global.SWU_PREFS.name === 'You' ? '' : global.SWU_PREFS.name;
+    body.appendChild(nameInput);
+    body.appendChild(el('div', 'artopt-desc',
+      'Shown on the board and in the game log. Leave blank for "You".'));
+
+    body.appendChild(el('h3', 'sect', 'Opponent difficulty'));
+    var diffWrap = el('div', 'swatches');
+    [['padawan', 'Padawan'], ['standard', 'Standard'], ['sith', 'Sith']].forEach(function (d) {
+      var b = el('button', 'swatch diff' + ($('difficulty').value === d[0] ? ' on' : ''), d[1]);
+      b.style.setProperty('--sw', 'var(--accent)');
+      b.onclick = function () {
+        $('difficulty').value = d[0];
+        global.SWU_AI.setDifficulty(d[0]);
+        Array.prototype.forEach.call(diffWrap.children, function (c) { c.classList.remove('on'); });
+        b.classList.add('on');
+      };
+      diffWrap.appendChild(b);
+    });
+    body.appendChild(diffWrap);
+    body.appendChild(el('div', 'artopt-desc', 'Takes effect on the next new game.'));
+
+    body.appendChild(el('h3', 'sect', 'Accent colour'));
+    var swatches = el('div', 'swatches');
+    var chosenAccent = global.SWU_PREFS.accent;
+    global.SWU_PREFS.ACCENTS.forEach(function (a) {
+      var b = el('button', 'swatch accent' + (a.id === chosenAccent ? ' on' : ''));
+      b.style.setProperty('--sw', a.value);
+      b.title = a.name;
+      b.appendChild(el('i'));
+      b.appendChild(el('span', null, a.name));
+      b.onclick = function () {
+        chosenAccent = a.id;
+        global.SWU_PREFS.save({ name: global.SWU_PREFS.name, accent: a.id });
+        Array.prototype.forEach.call(swatches.children, function (c) { c.classList.remove('on'); });
+        b.classList.add('on');
+      };
+      swatches.appendChild(b);
+    });
+    body.appendChild(swatches);
+
+    // --- card art ----------------------------------------------------------
+    body.appendChild(el('h3', 'sect', 'Card art'));
     var note = el('p', 'muted-note');
-    note.textContent = 'No card images ship with this app. Card art is copyrighted by its ' +
-      'publisher, so point this at a source you are entitled to use — images load in your ' +
-      'browser only and nothing is saved into the project.';
+    note.textContent = 'No images ship with the app. Point it at a card source and they load ' +
+      'straight in your browser — nothing is stored in the project.';
     body.appendChild(note);
 
     var form = el('div', 'artform');
@@ -454,6 +526,8 @@
     save.onclick = function () {
       var mode = form.querySelector('input[name=artmode]:checked').value;
       global.SWU_ART.save({ mode: mode, template: input.value.trim() });
+      global.SWU_PREFS.save({ name: nameInput.value, accent: chosenAccent });
+      applyIdentity();
       $('modal').hidden = true;
       render();
     };
@@ -464,10 +538,12 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     global.SWU_ART.load();
+    global.SWU_PREFS.load();
     buildStars();
+    global.addEventListener('resize', syncDockHeight);
     $('new-game').onclick = newGame;
     $('show-deck').onclick = showDeck;
-    $('show-art').onclick = showArtSettings;
+    $('show-settings').onclick = showSettings;
     $('modal-close').onclick = function () { $('modal').hidden = true; };
     $('modal').onclick = function (e) { if (e.target === $('modal')) $('modal').hidden = true; };
     $('difficulty').onchange = function () { global.SWU_AI.setDifficulty($('difficulty').value); };

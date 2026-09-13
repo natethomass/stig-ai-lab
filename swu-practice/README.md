@@ -87,6 +87,12 @@ browser from a source you choose. **Card art** in the header offers:
 - **URL template** — a pattern such as `https://your-source.example/cards/{id}.png`.
   Placeholders: `{id}` `{name}` `{slug}` `{set}` `{number}`.
 
+To fill the local folder in one go, `tools/fetch-art.js` downloads images for the whole
+deck from a source you name — a URL pattern, or a JSON card index you have already
+downloaded (it matches by card name and pulls the image URL out of whatever shape the
+index has). It writes only into `img/`, which is git-ignored, so nothing from a card
+database ends up in this repository. Run `node tools/fetch-art.js --help` for the flags.
+
 Your choice persists in `localStorage`. Any image that fails to load falls back to the
 text card silently, so a wrong pattern or a missing file degrades rather than breaking
 the game — expect `404`s in the browser console for cards you have no image for.
@@ -153,6 +159,7 @@ deck file.
 index.html            markup and zone layout
 styles.css            board theme, aspect colours, starfield, win screen
 js/art.js             optional card-art layer (off by default, nothing bundled)
+tools/fetch-art.js    downloads card images into img/ from a source you name
 img/                  where your own card images go (git-ignored)
 js/cards.js           your leader, base and 30-card deck, with every ability
 js/opponent-deck.js   the generic sparring deck (swap this out)
