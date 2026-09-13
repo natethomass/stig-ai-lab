@@ -1,0 +1,10 @@
+{
+  "name": "swu-practice",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local practice app for playing the Vader Sealed (A Lawless Time) deck against a computer opponent",
+  "scripts": {
+    "test": "node test/smoke.js 200",
+    "balance": "node test/balance.js 400"
+  }
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vader Sealed — Practice</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="title">
+    <h1>Vader Sealed <span class="sub">A Lawless Time</span></h1>
+    <p class="deckline" id="deckline">Darth Vader — Unstoppable · Partisan Hideout · Aggression / Villainy / Cunning</p>
+  </div>
+  <div class="controls">
+    <label>Opponent
+      <select id="difficulty">
+        <option value="padawan">Padawan</option>
+        <option value="standard" selected>Standard</option>
+        <option value="sith">Sith</option>
+      </select>
+    </label>
+    <button id="new-game" class="btn primary">New game</button>
+    <button id="show-deck" class="btn">Decklist</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="board">
+    <div class="side enemy">
+      <div class="side-head">
+        <span class="who">Opponent</span>
+        <span class="chip" id="ai-deckname"></span>
+        <span class="chip" id="ai-hand">Hand 0</span>
+        <span class="chip" id="ai-deck">Deck 0</span>
+        <span class="chip" id="ai-discard">Discard 0</span>
+        <span class="chip" id="ai-res">Resources 0</span>
+      </div>
+      <div class="side-main">
+        <div class="basebox" id="ai-base"></div>
+        <div class="leaderbox" id="ai-leader"></div>
+      </div>
+    </div>
+
+    <div class="arena" data-arena="space">
+      <div class="arena-label">Space arena</div>
+      <div class="row" id="ai-space"></div>
+      <div class="row mine" id="you-space"></div>
+    </div>
+
+    <div class="arena" data-arena="ground">
+      <div class="arena-label">Ground arena</div>
+      <div class="row" id="ai-ground"></div>
+      <div class="row mine" id="you-ground"></div>
+    </div>
+
+    <div class="side you">
+      <div class="side-main">
+        <div class="basebox" id="you-base"></div>
+        <div class="leaderbox" id="you-leader"></div>
+      </div>
+      <div class="side-head">
+        <span class="who">You</span>
+        <span class="chip" id="you-deck">Deck 0</span>
+        <span class="chip" id="you-discard">Discard 0</span>
+        <span class="chip" id="you-res">Resources 0</span>
+        <span class="chip" id="you-credits">Credits 0</span>
+      </div>
+    </div>
+
+    <div class="hand-area">
+      <div class="hand-label">Your hand</div>
+      <div class="hand" id="you-hand"></div>
+    </div>
+  </section>
+
+  <aside class="sidebar">
+    <div class="status" id="status"></div>
+    <div class="prompt" id="prompt" hidden></div>
+    <div class="actions" id="actions"></div>
+    <div class="logbox">
+      <div class="log-label">Game log</div>
+      <div class="log" id="log"></div>
+    </div>
+  </aside>
+</main>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-inner">
+    <button class="btn close" id="modal-close">Close</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script src="js/cards.js"></script>
+<script src="js/opponent-deck.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
