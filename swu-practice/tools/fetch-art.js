@@ -149,8 +149,9 @@ function buildIndexMap(file, opts) {
 
 // ---------------------------------------------------------------- download
 function urlFromTemplate(template, def) {
-  var set = (def.set || '').split(/\s+/)[0] || '';
-  var number = (def.set || '').split(/\s+/)[1] || '';
+  var parts = (def.set || '').split(/\s+/);
+  var set = def.setCode || parts[0] || '';
+  var number = def.number || parts[1] || '';
   return template
     .replace(/\{id\}/g, def.id)
     .replace(/\{name\}/g, encodeURIComponent(def.name))

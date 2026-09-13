@@ -54,8 +54,9 @@
     if (config.mode === 'local') {
       url = 'img/' + def.id + '.png';
     } else if (config.mode === 'template' && config.template) {
-      var set = (def.set || '').split(/\s+/)[0] || '';
-      var number = (def.set || '').split(/\s+/)[1] || '';
+      var parts = (def.set || '').split(/\s+/);
+      var set = def.setCode || parts[0] || '';
+      var number = def.number || parts[1] || '';
       url = config.template
         .replace(/\{id\}/g, encodeURIComponent(def.id))
         .replace(/\{name\}/g, encodeURIComponent(def.name))
