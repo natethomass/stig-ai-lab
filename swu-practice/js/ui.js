@@ -518,14 +518,67 @@
     input.placeholder = 'https://your-source.example/cards/{id}.png';
     input.value = cfg.template || '';
     form.appendChild(input);
+
+    var presetRow = el('div', 'swatches');
+    global.SWU_ART.PRESETS.forEach(function (preset) {
+      var b = el('button', 'swatch', 'Use ' + preset.name);
+      b.style.setProperty('--sw', 'var(--accent)');
+      b.onclick = function () {
+        input.value = preset.template;
+        var radio = form.querySelector('input[name=artmode][value=template]');
+        if (radio) radio.checked = true;
+      };
+      presetRow.appendChild(b);
+    });
+    form.appendChild(presetRow);
     form.appendChild(el('div', 'artopt-desc',
       'Placeholders: {id} {name} {slug} {set} {number}. Anything that fails to load falls ' +
       'back to the text card.'));
 
+    // --- card numbers ------------------------------------------------------
+    // A {set}/{number} template needs each card's collector number, which the
+    // decklist does not carry. Paste a deck export and they are read off it.
+    var deckCards = [global.SWU_CARDS.LEADER, global.SWU_CARDS.BASE]
+      .concat(global.SWU_CARDS.DECK)
+      .map(function (d) { return { id: d.id, name: d.name }; });
+    var have = Object.keys(cfg.numbers || {}).length;
+    var pendingNumbers = null;
+
+    form.appendChild(el('h3', 'sect', 'Card numbers'));
+    var status = el('div', 'artopt-desc', have
+      ? 'Stored for ' + have + ' of ' + deckCards.length + ' cards.'
+      : 'None stored. A {set}/{number} template needs these.');
+    form.appendChild(status);
+
+    var paste = document.createElement('textarea');
+    paste.className = 'artinput paste';
+    paste.rows = 4;
+    paste.placeholder = 'Paste your deck export here (JSON or a text list)';
+    form.appendChild(paste);
+
+    var match = el('button', 'btn', 'Read numbers from export');
+    match.onclick = function () {
+      var text = paste.value.trim();
+      if (!text) { status.textContent = 'Paste an export first.'; return; }
+      var result = global.SWU_ART.importDeckNumbers(text, deckCards);
+      if (!result.matched.length) {
+        status.textContent = 'No cards matched — that export has no card names ' +
+          'with set and number next to them.';
+        return;
+      }
+      pendingNumbers = result.numbers;
+      status.textContent = 'Matched ' + result.matched.length + ' of ' + deckCards.length +
+        ' cards.' + (result.unmatched.length ? ' Missing: ' + result.unmatched.join(', ') : '') +
+        ' Press Save to keep them.';
+    };
+    form.appendChild(match);
+
     var save = el('button', 'btn primary', 'Save');
     save.onclick = function () {
       var mode = form.querySelector('input[name=artmode]:checked').value;
-      global.SWU_ART.save({ mode: mode, template: input.value.trim() });
+      var patch = { mode: mode, template: input.value.trim() };
+      if (pendingNumbers) patch.numbers = pendingNumbers;
+      global.SWU_ART.save(patch);
       global.SWU_PREFS.save({ name: nameInput.value, accent: chosenAccent });
       applyIdentity();
       $('modal').hidden = true;
