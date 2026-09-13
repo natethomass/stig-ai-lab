@@ -536,7 +536,7 @@
     $('modal').hidden = false;
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  function boot() {
     global.SWU_ART.load();
     global.SWU_PREFS.load();
     buildStars();
@@ -548,5 +548,13 @@
     $('modal').onclick = function (e) { if (e.target === $('modal')) $('modal').hidden = true; };
     $('difficulty').onchange = function () { global.SWU_AI.setDifficulty($('difficulty').value); };
     newGame();
-  });
+  }
+
+  // Scripts may be injected after parsing (e.g. when hosted), so DOMContentLoaded
+  // can already have fired by the time we get here.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
 })(typeof globalThis !== 'undefined' ? globalThis : this);
