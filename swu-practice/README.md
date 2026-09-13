@@ -42,6 +42,7 @@ Every card's ability is implemented, including the ones that make the deck tick:
 | Qui-Gon Jinn | Look at top 3, may discard 1 — on play and on every attack |
 | Arvel Skeen | Spends Credit tokens for 1 damage, on play and on attack |
 | Champion's KT9 Podracer | Creates the Credit token Arvel wants |
+| Partisan Hideout (Epic Action) | Play a card from hand ignoring 1 aspect penalty, once per game |
 
 Keywords implemented: **Raid N, Sentinel, Saboteur, Ambush, Hidden**, plus Shield and
 Experience tokens and Credit tokens.
@@ -65,12 +66,30 @@ in-prompt choice. Neither side gets hidden bonuses.
 | Setting | AI sloppiness | Deck win rate when *both* sides are played by the built-in heuristic |
 |---|---|---|
 | Padawan | 40% | ~53% |
-| Standard | 15% | ~45% |
+| Standard | 15% | ~46% |
 | Sith | 0% | ~42% |
 
-Those numbers are the deck piloted by a naive bot. Playing it properly — holding Vader's
+Measured over 600 games per setting. Those numbers are the deck piloted by a naive bot. Playing it properly — holding Vader's
 ping for a kill, respecting the resource drop, using Hidden bodies to tempo — should put
 you well above them. Measure it yourself with `node test/balance.js 400`.
+
+---
+
+## Card art
+
+The app ships with **no card images and downloads none into the project** — card art is
+copyrighted by its publisher. Instead there is an art layer that loads images in your
+browser from a source you choose. **Card art** in the header offers:
+
+- **Text cards only** — the default.
+- **Local folder** — reads `img/<card-id>.png` next to `index.html`. Drop in images you
+  are entitled to use, named by the `id` fields in `js/cards.js`. See `img/README.md`.
+- **URL template** — a pattern such as `https://your-source.example/cards/{id}.png`.
+  Placeholders: `{id}` `{name}` `{slug}` `{set}` `{number}`.
+
+Your choice persists in `localStorage`. Any image that fails to load falls back to the
+text card silently, so a wrong pattern or a missing file degrades rather than breaking
+the game — expect `404`s in the browser console for cards you have no image for.
 
 ---
 
@@ -80,8 +99,8 @@ you well above them. Measure it yourself with `node test/balance.js 400`.
   - gold border on a hand card → you can afford to play it
   - green border on your unit → it can attack
   - blue border → it is a legal target for the choice you are being asked to make
-- Side panel buttons cover everything else: deploy Vader, his Epic Action, his ping,
-  taking the initiative, and passing.
+- Side panel buttons cover everything else: deploy Vader, his Epic Action, his ping, the
+  base's Epic Action, taking the initiative, and passing.
 - When both players pass, the round ends: you resource a card, both players draw 2, and
   everything readies.
 - First base to 0 loses. Your base is 27 HP; so is theirs.
@@ -105,8 +124,10 @@ knowing before you carry a habit to a real table:
    does not end your turns, and whoever holds it at round end goes first next round.
 3. **Passing** — any non-pass action clears both pass flags, so the phase ends only on
    two consecutive passes.
-4. **The base's Epic Action** (ignore 1 aspect penalty) is not wired to a button, because
-   this deck's aspects are fully covered and it would never change a cost.
+4. **The base's Epic Action** is implemented and always offered, but with this deck's
+   aspects fully covered it saves nothing — the option labels say `(no penalty to ignore)`
+   so you can see that before spending it. Backing out of the prompt costs neither the
+   Epic Action nor your turn. It matters if you swap in a deck with uncovered aspects.
 5. No "when defeated" triggers fire from a leader returning to the leader zone, and
    upgrade cards go to the discard pile when played rather than being tracked as a
    physical card in play.
@@ -130,7 +151,9 @@ deck file.
 
 ```
 index.html            markup and zone layout
-styles.css            dark board theme
+styles.css            board theme, aspect colours, starfield, win screen
+js/art.js             optional card-art layer (off by default, nothing bundled)
+img/                  where your own card images go (git-ignored)
 js/cards.js           your leader, base and 30-card deck, with every ability
 js/opponent-deck.js   the generic sparring deck (swap this out)
 js/engine.js          rules engine: phases, resources, combat, prompts

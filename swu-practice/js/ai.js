@@ -224,7 +224,9 @@
     var action = chooseAction(g, ME);
     if (!action) return false;
     if (ME === 'ai' && randomChance > 0 && Math.random() < randomChance) {
-      var all = g.legalActions(ME).filter(function (a) { return a.kind !== 'pass'; });
+      var all = g.legalActions(ME).filter(function (a) {
+        return a.kind !== 'pass' && a.kind !== 'base-epic';
+      });
       if (all.length) action = all[Math.floor(Math.random() * all.length)];
     }
     g.doAction(ME, action);

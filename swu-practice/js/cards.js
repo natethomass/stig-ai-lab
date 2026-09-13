@@ -168,7 +168,38 @@
 
   var BASE = {
     id: 'partisan-hideout', name: 'Partisan Hideout', hp: 27, aspects: [CUN],
-    text: 'Epic Action: Play a card from your hand, ignoring 1 of its aspect penalties.'
+    text: 'Epic Action: Play a card from your hand, ignoring 1 of its aspect penalties.',
+    epicAction: {
+      label: 'Epic Action: play a card ignoring 1 aspect penalty',
+      // Always offerable while unused - the discount is only worth anything on a
+      // card with an uncovered aspect, and the option labels show the real cost.
+      usable: function (g, side) { return g.player(side).hand.length > 0; },
+      use: function (g, side) {
+        var p = g.player(side);
+        var options = [];
+        p.hand.forEach(function (c) {
+          var discount = Math.min(2, g.aspectPenalty(side, c));
+          if (!g.canAfford(side, c, discount)) return;
+          var full = g.costOf(side, c, 0), net = g.costOf(side, c, discount);
+          options.push({
+            id: c.uid,
+            label: c.def.name + ' — pay ' + net + (net < full ? ' (was ' + full + ')' : ' (no penalty to ignore)')
+          });
+        });
+        if (!options.length) { g.log('No card in hand can be played this way.'); return; }
+        g.prompt(side, {
+          text: 'Epic Action: play a card, ignoring 1 of its aspect penalties',
+          optional: true, hint: 'base-epic', options: options
+        }, function (picked) {
+          if (!picked.length) { g.cancelAction(); return; }   // backing out is free
+          var card = p.hand.filter(function (x) { return x.uid === picked[0]; })[0];
+          if (!card) { g.cancelAction(); return; }
+          p.epicUsed.base = true;
+          g.log(g.says(side, 'use') + ' the Partisan Hideout Epic Action.');
+          g.playCard(side, card, { discount: Math.min(2, g.aspectPenalty(side, card)) });
+        });
+      }
+    }
   };
 
   // --------------------------------------------------------------- the deck

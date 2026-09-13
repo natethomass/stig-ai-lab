@@ -235,6 +235,10 @@
     this.settle();
   };
 
+  // Abandon the action in progress without ending the turn - used when a player
+  // backs out of a prompt that had not committed to anything yet.
+  Game.prototype.cancelAction = function () { this.actionInProgress = false; };
+
   // Called after any action/prompt chain to finish the turn once nothing is
   // waiting on a choice.
   Game.prototype.settle = function () {
@@ -507,6 +511,11 @@
       }
     }
 
+    var baseEpic = p.base.def.epicAction;
+    if (baseEpic && !p.epicUsed.base && baseEpic.usable(this, side)) {
+      acts.push({ kind: 'base-epic', label: baseEpic.label });
+    }
+
     if (!this.initiativeClaimedBy) {
       acts.push({ kind: 'initiative', label: 'Take the initiative' });
     }
@@ -553,6 +562,11 @@
         p.epicUsed.leader = true;
         this.log(this.name(side) + ' uses an Epic Action.');
         this.deployLeader(side);
+        break;
+      case 'base-epic':
+        // epicUsed.base is set inside use() only if a card is actually played,
+        // so cancelling the prompt does not waste the Epic Action.
+        p.base.def.epicAction.use(this, side);
         break;
       case 'initiative':
         this.initiativeClaimedBy = side;

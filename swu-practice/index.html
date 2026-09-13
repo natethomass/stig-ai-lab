@@ -4,13 +4,37 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vader Sealed — Practice</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3 42 13.5v21L24 45 6 34.5v-21z' fill='none' stroke='%23f2b705' stroke-width='3'/%3E%3Cpath d='M15 31 33 17' stroke='%23c0392b' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<div class="stars" id="stars" aria-hidden="true"></div>
+
 <header class="topbar">
   <div class="title">
-    <h1>Vader Sealed <span class="sub">A Lawless Time</span></h1>
-    <p class="deckline" id="deckline">Darth Vader — Unstoppable · Partisan Hideout · Aggression / Villainy / Cunning</p>
+    <div class="brandmark">
+      <svg class="emblem" viewBox="0 0 48 48" aria-hidden="true">
+        <defs>
+          <linearGradient id="em" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f2b705"/><stop offset="1" stop-color="#c0392b"/>
+          </linearGradient>
+        </defs>
+        <path d="M24 3 42 13.5v21L24 45 6 34.5v-21z" fill="none" stroke="url(#em)" stroke-width="2.5"/>
+        <path d="M15 31 33 17" stroke="url(#em)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="17" cy="18" r="2.2" fill="#f2b705"/>
+        <circle cx="24" cy="24" r="2.2" fill="#f2b705"/>
+        <circle cx="31" cy="30" r="2.2" fill="#c0392b"/>
+      </svg>
+      <div>
+        <h1>Vader Sealed <span class="sub">A Lawless Time</span></h1>
+        <p class="deckline" id="deckline">
+          <span class="asp Aggression">Aggression</span>
+          <span class="asp Villainy">Villainy</span>
+          <span class="asp Cunning">Cunning</span>
+          <span class="dl-sep">·</span> Darth Vader — Unstoppable <span class="dl-sep">·</span> Partisan Hideout
+        </p>
+      </div>
+    </div>
   </div>
   <div class="controls">
     <label>Opponent
@@ -22,6 +46,7 @@
     </label>
     <button id="new-game" class="btn primary">New game</button>
     <button id="show-deck" class="btn">Decklist</button>
+    <button id="show-art" class="btn">Card art</button>
   </div>
 </header>
 
@@ -85,6 +110,8 @@
   </aside>
 </main>
 
+<div class="win-overlay" id="win-overlay" hidden></div>
+
 <div class="modal" id="modal" hidden>
   <div class="modal-inner">
     <button class="btn close" id="modal-close">Close</button>
@@ -92,6 +119,7 @@
   </div>
 </div>
 
+<script src="js/art.js"></script>
 <script src="js/cards.js"></script>
 <script src="js/opponent-deck.js"></script>
 <script src="js/engine.js"></script>

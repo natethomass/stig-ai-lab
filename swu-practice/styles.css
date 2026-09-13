@@ -15,6 +15,18 @@
 
 * { box-sizing: border-box; }
 
+/* Starfield: two parallax layers of box-shadow dots, no image assets. */
+.stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.star-layer { position: absolute; top: 0; left: 0; width: 1px; height: 1px; border-radius: 50%; }
+.star-layer.far { box-shadow: 0 0 0 rgba(255,255,255,0); animation: drift 240s linear infinite; }
+.star-layer.near {
+  width: 2px; height: 2px; opacity: .8; animation: drift 150s linear infinite;
+}
+@keyframes drift { from { transform: translateY(0); } to { transform: translateY(-700px); } }
+@media (prefers-reduced-motion: reduce) { .star-layer { animation: none; } }
+
+.topbar, .layout, .modal, .win-overlay { position: relative; z-index: 1; }
+
 body {
   margin: 0;
   background: radial-gradient(1200px 700px at 50% -10%, #17202c 0%, var(--bg) 60%);
@@ -29,9 +41,23 @@ body {
   padding: 12px 20px; border-bottom: 1px solid var(--line); background: rgba(12,15,20,.8);
   position: sticky; top: 0; z-index: 20; backdrop-filter: blur(6px); flex-wrap: wrap;
 }
-.topbar h1 { margin: 0; font-size: 18px; letter-spacing: .3px; }
-.topbar h1 .sub { color: var(--accent); font-weight: 500; font-size: 13px; margin-left: 6px; }
-.deckline { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+.brandmark { display: flex; align-items: center; gap: 12px; }
+.emblem { width: 38px; height: 38px; flex: none; filter: drop-shadow(0 0 8px rgba(242,183,5,.25)); }
+.topbar h1 {
+  margin: 0; font-size: 19px; letter-spacing: 2.2px; text-transform: uppercase; font-weight: 800;
+}
+.topbar h1 .sub {
+  color: var(--accent); font-weight: 600; font-size: 12px; margin-left: 8px; letter-spacing: 3px;
+}
+.deckline { margin: 3px 0 0; color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dl-sep { color: #3d4a5f; }
+.asp {
+  font-size: 10.5px; letter-spacing: .8px; text-transform: uppercase; font-weight: 700;
+  border-radius: 999px; padding: 2px 9px; border: 1px solid;
+}
+.asp.Aggression { color: #ff8b7e; border-color: rgba(192,57,43,.6); background: rgba(192,57,43,.16); }
+.asp.Villainy   { color: #b79bff; border-color: rgba(125,60,255,.6); background: rgba(125,60,255,.16); }
+.asp.Cunning    { color: #6fd8cb; border-color: rgba(42,157,143,.6); background: rgba(42,157,143,.16); }
 .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .controls label { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 6px; }
 select, .btn {
@@ -47,7 +73,8 @@ select, .btn {
   display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px;
   padding: 12px 14px; align-items: start; max-width: 1500px; margin: 0 auto;
 }
-.board { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+/* Bottom room so the sticky hand never sits on top of the base/leader panels. */
+.board { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding-bottom: 8px; }
 
 .side { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
 .side-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -74,8 +101,15 @@ select, .btn {
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px;
 }
 .arena-label {
-  font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--muted); margin-bottom: 8px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
 }
+.arena-label::after {
+  content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+.arena[data-arena="space"] .arena-label { color: #7fb2ff; }
+.arena[data-arena="ground"] .arena-label { color: #ffc98b; }
 .row {
   display: flex; gap: 8px; flex-wrap: wrap; min-height: 76px; padding: 5px;
   border-radius: 8px; background: rgba(255,255,255,.015);
@@ -111,6 +145,32 @@ select, .btn {
 .card.attacker { border-color: var(--ok); box-shadow: 0 0 0 1px rgba(69,192,122,.4); cursor: pointer; }
 .card.targetable { border-color: #6cd0ff; box-shadow: 0 0 0 2px rgba(108,208,255,.45); cursor: pointer; }
 .card.selected { outline: 2px solid var(--accent); }
+.card::before {
+  content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px;
+  border-radius: 0 3px 3px 0; background: #3d4a5f;
+}
+.card[data-aspect="Aggression"]::before { background: var(--agg); }
+.card[data-aspect="Villainy"]::before   { background: var(--vil); }
+.card[data-aspect="Cunning"]::before    { background: var(--cun); }
+.card[data-aspect="Command"]::before    { background: #2f7d32; }
+.card[data-aspect="Vigilance"]::before  { background: #2f6fd0; }
+.card[data-aspect="Aggression"] { background: linear-gradient(160deg, #2c2028, #18202b); }
+.card[data-aspect="Villainy"]   { background: linear-gradient(160deg, #251f38, #18202b); }
+.card[data-aspect="Cunning"]    { background: linear-gradient(160deg, #1c2c31, #18202b); }
+
+/* Optional card art sits behind the text, which keeps its own scrim. */
+.card img.art {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  border-radius: 10px; z-index: 0;
+}
+.card.has-art > *:not(img.art) { position: relative; z-index: 2; }
+.card.has-art::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 10px;
+  background: linear-gradient(180deg, rgba(8,11,16,.35) 0%, rgba(8,11,16,.88) 62%);
+}
+.card.has-art .nm, .card.has-art .stat { text-shadow: 0 1px 3px rgba(0,0,0,.9); }
+.card.has-art .kw { display: none; }
+
 .card .aspects { display: flex; gap: 3px; }
 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 .dot.Aggression { background: var(--agg); }
@@ -179,4 +239,41 @@ select, .btn {
 @media (max-width: 1000px) {
   .layout { grid-template-columns: 1fr; }
   .sidebar { position: static; }
+}
+
+
+/* --------------------------------------------------------------- win screen */
+.win-overlay {
+  position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
+  background: rgba(6,8,12,.78); backdrop-filter: blur(3px);
+}
+.win-box {
+  text-align: center; padding: 32px 44px; border-radius: 16px;
+  background: var(--panel); border: 1px solid var(--line); max-width: 420px;
+}
+.win-box.win { border-color: var(--ok); box-shadow: 0 0 60px rgba(69,192,122,.16); }
+.win-box.lose { border-color: var(--danger); box-shadow: 0 0 60px rgba(255,92,92,.14); }
+.win-kicker { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+.win-title {
+  font-size: 42px; font-weight: 800; letter-spacing: 5px; text-transform: uppercase; margin: 6px 0 4px;
+}
+.win-box.win .win-title { color: var(--accent); }
+.win-box.lose .win-title { color: var(--danger); }
+.win-sub { color: var(--muted); margin-bottom: 20px; font-size: 13px; }
+.win-box .btn { margin: 0 4px; }
+
+/* ---------------------------------------------------------- art settings */
+.muted-note { color: var(--muted); font-size: 13px; }
+.artform { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.artopt {
+  display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 10px; cursor: pointer; background: var(--panel-2);
+}
+.artopt:hover { border-color: #3d4a5f; }
+.artopt input { margin-top: 3px; }
+.artopt-name { font-weight: 600; }
+.artopt-desc { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.artinput {
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 12px; color: var(--ink); font-size: 13px; width: 100%;
 }

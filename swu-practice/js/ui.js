@@ -33,7 +33,24 @@
     var def = card.def;
     var node = el('div', 'card');
     node.dataset.uid = card.uid;
+    node.dataset.aspect = (def.aspects && def.aspects[0]) || 'None';
     node.title = def.name + (def.text ? '\n\n' + def.text : '');
+
+    var artUrl = global.SWU_ART ? global.SWU_ART.urlFor(def) : null;
+    if (artUrl) {
+      var img = document.createElement('img');
+      img.className = 'art';
+      img.alt = '';
+      img.loading = 'lazy';
+      img.src = artUrl;
+      img.onerror = function () {
+        global.SWU_ART.markFailed(artUrl);
+        node.classList.remove('has-art');
+        if (img.parentNode) img.parentNode.removeChild(img);
+      };
+      node.classList.add('has-art');
+      node.appendChild(img);
+    }
 
     var cost = el('div', 'cost', String(def.cost != null ? def.cost : ''));
     if (opts.showCost !== false && def.cost != null) node.appendChild(cost);
@@ -123,6 +140,7 @@
     });
 
     renderStatus();
+    renderWinOverlay();
     renderPrompt(pending);
     renderActions(acts, pending);
     renderLog();
@@ -313,6 +331,7 @@
   function newGame() {
     clearTimeout(aiTimer);
     selectedPrompt = [];
+    if ($('win-overlay')) $('win-overlay').hidden = true;
     global.SWU_AI.setDifficulty($('difficulty').value);
     g = new global.SWU_ENGINE.Game({});
     global.swuGame = g;                       // handy for the console
@@ -351,9 +370,104 @@
     $('modal').hidden = false;
   }
 
+  // A starfield built from box-shadows: no image assets, deterministic per load.
+  function buildStars() {
+    var layer = $('stars');
+    if (!layer) return;
+    ['far', 'near'].forEach(function (depth, di) {
+      var n = di === 0 ? 140 : 45;
+      var shadows = [];
+      for (var i = 0; i < n; i++) {
+        var x = Math.round(Math.random() * 2000);
+        var y = Math.round(Math.random() * 1400);
+        var a = (di === 0 ? 0.25 : 0.5) + Math.random() * 0.35;
+        shadows.push(x + 'px ' + y + 'px rgba(255,255,255,' + a.toFixed(2) + ')');
+      }
+      var d = el('i', 'star-layer ' + depth);
+      d.style.boxShadow = shadows.join(', ');
+      layer.appendChild(d);
+    });
+  }
+
+  function renderWinOverlay() {
+    var ov = $('win-overlay');
+    if (!ov) return;
+    if (!g || !g.winner) { ov.hidden = true; return; }
+    ov.hidden = false;
+    ov.innerHTML = '';
+    var box = el('div', 'win-box ' + (g.winner === 'you' ? 'win' : g.winner === 'ai' ? 'lose' : 'draw'));
+    box.appendChild(el('div', 'win-kicker', 'Round ' + g.round));
+    box.appendChild(el('div', 'win-title',
+      g.winner === 'you' ? 'Victory' : g.winner === 'ai' ? 'Defeat' : 'Draw'));
+    box.appendChild(el('div', 'win-sub', g.winner === 'you'
+      ? 'Sparring Outpost destroyed.'
+      : g.winner === 'ai' ? 'Partisan Hideout destroyed.' : 'Both bases fell together.'));
+    var again = el('button', 'btn primary', 'Play again');
+    again.onclick = newGame;
+    box.appendChild(again);
+    var dismiss = el('button', 'btn', 'Review the board');
+    dismiss.onclick = function () { ov.hidden = true; };
+    box.appendChild(dismiss);
+    ov.appendChild(box);
+  }
+
+  // --------------------------------------------------------------- art modal
+  function showArtSettings() {
+    var cfg = global.SWU_ART.config;
+    var body = $('modal-body');
+    body.innerHTML = '';
+    body.appendChild(el('h2', null, 'Card art'));
+    var note = el('p', 'muted-note');
+    note.textContent = 'No card images ship with this app. Card art is copyrighted by its ' +
+      'publisher, so point this at a source you are entitled to use — images load in your ' +
+      'browser only and nothing is saved into the project.';
+    body.appendChild(note);
+
+    var form = el('div', 'artform');
+    [['off', 'Text cards only', 'The default. Clean, fast, and always works.'],
+     ['local', 'Local folder', 'Reads img/<card-id>.png next to index.html. See img/README.md for the ids.'],
+     ['template', 'URL template', 'A pattern such as https://your-source.example/cards/{id}.png']
+    ].forEach(function (row) {
+      var label = el('label', 'artopt');
+      var radio = document.createElement('input');
+      radio.type = 'radio'; radio.name = 'artmode'; radio.value = row[0];
+      radio.checked = cfg.mode === row[0];
+      label.appendChild(radio);
+      var txt = el('div');
+      txt.appendChild(el('div', 'artopt-name', row[1]));
+      txt.appendChild(el('div', 'artopt-desc', row[2]));
+      label.appendChild(txt);
+      form.appendChild(label);
+    });
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'artinput';
+    input.placeholder = 'https://your-source.example/cards/{id}.png';
+    input.value = cfg.template || '';
+    form.appendChild(input);
+    form.appendChild(el('div', 'artopt-desc',
+      'Placeholders: {id} {name} {slug} {set} {number}. Anything that fails to load falls ' +
+      'back to the text card.'));
+
+    var save = el('button', 'btn primary', 'Save');
+    save.onclick = function () {
+      var mode = form.querySelector('input[name=artmode]:checked').value;
+      global.SWU_ART.save({ mode: mode, template: input.value.trim() });
+      $('modal').hidden = true;
+      render();
+    };
+    form.appendChild(save);
+    body.appendChild(form);
+    $('modal').hidden = false;
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
+    global.SWU_ART.load();
+    buildStars();
     $('new-game').onclick = newGame;
     $('show-deck').onclick = showDeck;
+    $('show-art').onclick = showArtSettings;
     $('modal-close').onclick = function () { $('modal').hidden = true; };
     $('modal').onclick = function (e) { if (e.target === $('modal')) $('modal').hidden = true; };
     $('difficulty').onchange = function () { global.SWU_AI.setDifficulty($('difficulty').value); };
